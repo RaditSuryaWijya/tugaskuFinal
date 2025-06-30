@@ -1,0 +1,44 @@
+# TugasKu Project Rules
+
+## Desain UI
+1. AgendaScreen menggunakan desain timeline khusus dengan:
+   - Waktu di sebelah kiri
+   - Card tugas dengan indikator prioritas warna
+   - Garis timeline vertikal
+
+2. Screen lainnya menggunakan desain standar dengan:
+   - SafeAreaView sebagai container utama
+   - Surface untuk efek elevasi
+   - Padding 16px untuk konten
+   - Card dengan elevation 2
+   - Warna utama #6200ee
+
+## Konvensi Kode
+1. Bahasa:
+   - Semua string menggunakan Bahasa Indonesia
+   - Kode dan nama variabel dalam Bahasa Inggris
+   - Format waktu menggunakan locale 'id'
+
+2. Struktur Komponen:
+   - Functional Components dengan Hooks
+   - Props validation
+   - StyleSheet di bagian bawah file
+   - Komponen reusable di folder components
+
+3. State Management:
+   - useState untuk state lokal
+   - useEffect untuk side effects
+   - Props untuk passing data
+
+## Workflow
+1. Setiap perubahan UI harus:
+   - Konsisten dengan tema aplikasi
+   - Responsive pada berbagai ukuran layar
+   - Menggunakan komponen React Native Paper
+   - Mempertimbangkan performa
+
+2. Setiap fitur baru harus:
+   - Didokumentasikan di Memory Bank
+   - Mengikuti pola desain yang ada
+   - Diuji pada iOS dan Android
+   - Memiliki error handling 

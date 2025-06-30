@@ -1,0 +1,382 @@
+import React, { useState, useRef } from 'react';
+import { View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { Surface, Text, IconButton, Portal, Modal, Button } from 'react-native-paper';
+import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, getDate, getMonth, getYear, setDate, setMonth, setYear } from 'date-fns';
+import { id } from 'date-fns/locale';
+
+const HARI = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+const BULAN = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+];
+const { width } = Dimensions.get('window');
+const DATE_ITEM_WIDTH = width / 5;
+
+export default function AgendaScreen() {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+  const [tempDate, setTempDate] = useState(new Date());
+  const [monthDates, setMonthDates] = useState(() => {
+    const start = startOfMonth(new Date());
+    const end = endOfMonth(new Date());
+    return eachDayOfInterval({ start, end });
+  });
+  const scrollViewRef = useRef(null);
+  
+  // Generate dates for the entire month
+  const generateMonthDates = (date) => {
+    const start = startOfMonth(date);
+    const end = endOfMonth(date);
+    return eachDayOfInterval({ start, end });
+  };
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+  };
+
+  const handleConfirm = () => {
+    setDatePickerOpen(false);
+    setSelectedDate(tempDate);
+    // Update month dates if selected date is in different month
+    if (format(tempDate, 'M') !== format(selectedDate, 'M')) {
+      setMonthDates(generateMonthDates(tempDate));
+    }
+  };
+
+  const handleCancel = () => {
+    setDatePickerOpen(false);
+    setTempDate(selectedDate);
+  };
+
+  const CustomDatePicker = () => {
+    const currentYear = getYear(tempDate);
+    const currentMonth = getMonth(tempDate);
+    const currentDate = getDate(tempDate);
+
+    const updateDate = (type, value) => {
+      let newDate = new Date(tempDate);
+      switch (type) {
+        case 'year':
+          newDate = setYear(newDate, value);
+          break;
+        case 'month':
+          newDate = setMonth(newDate, value);
+          break;
+        case 'date':
+          newDate = setDate(newDate, value);
+          break;
+      }
+      setTempDate(newDate);
+    };
+
+    return (
+      <Portal>
+        <Modal
+          visible={isDatePickerOpen}
+          onDismiss={handleCancel}
+          contentContainerStyle={styles.modalContainer}
+        >
+          <Text style={styles.modalTitle}>Pilih Tanggal</Text>
+          
+          <View style={styles.pickerContainer}>
+            {/* Tahun */}
+            <View style={styles.pickerColumn}>
+              <IconButton icon="chevron-up" onPress={() => updateDate('year', currentYear + 1)} />
+              <Text style={styles.pickerText}>{currentYear}</Text>
+              <IconButton icon="chevron-down" onPress={() => updateDate('year', currentYear - 1)} />
+            </View>
+
+            {/* Bulan */}
+            <View style={styles.pickerColumn}>
+              <IconButton 
+                icon="chevron-up" 
+                onPress={() => updateDate('month', currentMonth < 11 ? currentMonth + 1 : 0)} 
+              />
+              <Text style={styles.pickerText}>{BULAN[currentMonth]}</Text>
+              <IconButton 
+                icon="chevron-down" 
+                onPress={() => updateDate('month', currentMonth > 0 ? currentMonth - 1 : 11)} 
+              />
+            </View>
+
+            {/* Tanggal */}
+            <View style={styles.pickerColumn}>
+              <IconButton 
+                icon="chevron-up" 
+                onPress={() => {
+                  const lastDate = endOfMonth(tempDate).getDate();
+                  updateDate('date', currentDate < lastDate ? currentDate + 1 : 1);
+                }} 
+              />
+              <Text style={styles.pickerText}>{currentDate}</Text>
+              <IconButton 
+                icon="chevron-down" 
+                onPress={() => {
+                  const lastDate = endOfMonth(tempDate).getDate();
+                  updateDate('date', currentDate > 1 ? currentDate - 1 : lastDate);
+                }} 
+              />
+            </View>
+          </View>
+
+          <View style={styles.modalActions}>
+            <Button onPress={handleCancel}>Batal</Button>
+            <Button mode="contained" onPress={handleConfirm}>Pilih</Button>
+          </View>
+        </Modal>
+      </Portal>
+    );
+  };
+
+  const tasks = [
+    {
+      id: 1,
+      title: 'Math',
+      priority: 'Tinggi',
+      startTime: '9:00 AM',
+      endTime: '10:00 AM',
+      color: '#DC3545'
+    },
+    {
+      id: 2,
+      title: 'English',
+      priority: 'Rendah',
+      startTime: '11:00 AM',
+      endTime: '12:00 PM',
+      color: '#28A745'
+    },
+    {
+      id: 3,
+      title: 'History',
+      priority: 'Sedang',
+      startTime: '1:00 PM',
+      endTime: '2:00 PM',
+      color: '#FFC107'
+    },
+    {
+      id: 4,
+      title: 'History',
+      priority: 'Sedang',
+      startTime: '2:00 PM',
+      endTime: '3:00 PM',
+      color: '#FFC107'
+    }
+  ];
+
+  const renderCalendarStrip = () => {
+    return (
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.calendarStrip}
+        snapToInterval={DATE_ITEM_WIDTH}
+        decelerationRate="fast"
+        onMomentumScrollEnd={(event) => {
+          const index = Math.round(event.nativeEvent.contentOffset.x / DATE_ITEM_WIDTH);
+          if (monthDates[index]) {
+            handleDateSelect(monthDates[index]);
+          }
+        }}
+      >
+        {monthDates.map((date, index) => {
+          const isSelected = format(date, 'd') === format(selectedDate, 'd');
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleDateSelect(date)}
+              style={[
+                styles.dateItem,
+                { width: DATE_ITEM_WIDTH },
+                isSelected && styles.selectedDateItem
+              ]}
+            >
+              <Text style={[styles.dayText, isSelected && styles.selectedText]}>
+                {HARI[date.getDay()]}
+              </Text>
+              <Text style={[styles.dateText, isSelected && styles.selectedText]}>
+                {format(date, 'd')}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    );
+  };
+
+  const renderTimelineItem = (task) => {
+    return (
+      <View key={task.id} style={styles.timelineItem}>
+        <View style={styles.timeColumn}>
+          <Text style={styles.timeText}>{task.startTime}</Text>
+        </View>
+        <View style={[styles.taskCard, { backgroundColor: task.color }]}>
+          <Text style={styles.taskTitle}>{task.title}</Text>
+          <Text style={styles.priorityText}>Prioritas: {task.priority}</Text>
+          <Text style={styles.timeRange}>
+            {task.startTime} - {task.endTime}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Surface style={styles.surface}>
+        <View style={styles.calendarContainer}>
+          {renderCalendarStrip()}
+          <View style={styles.dateSelectionRow}>
+            <Text style={styles.selectedDateText}>
+              Tanggal Terpilih: {format(selectedDate, 'd MMMM yyyy', { locale: id })}
+            </Text>
+            <IconButton
+              icon="calendar"
+              size={20}
+              onPress={() => {
+                setTempDate(selectedDate);
+                setDatePickerOpen(true);
+              }}
+              style={styles.calendarButton}
+            />
+          </View>
+        </View>
+
+        <View style={styles.timelineContainer}>
+          <Text style={styles.sectionTitle}>Ongoing</Text>
+          <ScrollView>
+            {tasks.map(renderTimelineItem)}
+          </ScrollView>
+        </View>
+
+        <CustomDatePicker />
+      </Surface>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FAFAFA',
+  },
+  surface: {
+    flex: 1,
+  },
+  calendarContainer: {
+    backgroundColor: '#fff',
+    padding: 16,
+    marginBottom: 8,
+  },
+  calendarStrip: {
+    paddingVertical: 8,
+  },
+  dateItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    borderRadius: 8,
+  },
+  selectedDateItem: {
+    backgroundColor: '#1976d2',
+  },
+  dayText: {
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  dateText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  selectedText: {
+    color: '#fff',
+  },
+  dateSelectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  selectedDateText: {
+    fontSize: 14,
+    color: '#666',
+    flex: 1,
+  },
+  calendarButton: {
+    margin: 0,
+  },
+  timelineContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  timelineItem: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  timeColumn: {
+    width: 60,
+    alignItems: 'flex-start',
+  },
+  timeText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  taskCard: {
+    flex: 1,
+    marginLeft: 16,
+    padding: 16,
+    borderRadius: 8,
+  },
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  priorityText: {
+    fontSize: 12,
+    color: '#fff',
+    opacity: 0.9,
+    marginBottom: 4,
+  },
+  timeRange: {
+    fontSize: 12,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    margin: 20,
+    borderRadius: 8,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  pickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  pickerColumn: {
+    alignItems: 'center',
+  },
+  pickerText: {
+    fontSize: 18,
+    marginVertical: 8,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+}); 
