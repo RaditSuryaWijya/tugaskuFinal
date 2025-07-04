@@ -261,6 +261,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
   },
   surface: {
+    backgroundColor: '#FAFAFA',
     flex: 1,
   },
   calendarContainer: {
@@ -296,6 +297,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    padding: 8
   },
   selectedDateText: {
     fontSize: 14,
@@ -308,6 +313,7 @@ const styles = StyleSheet.create({
   timelineContainer: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#FAFAFA',
   },
   sectionTitle: {
     fontSize: 18,
