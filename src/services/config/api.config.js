@@ -1,6 +1,6 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'https://10.1.49.11:8080', // Ganti dengan base URL API Anda
+  BASE_URL: 'http://192.168.100.3:8081', // Ganti dengan base URL API Anda
   TIMEOUT: 30000, // 30 detik
   HEADERS: {
     'Content-Type': 'application/json',
@@ -14,21 +14,25 @@ export const ENDPOINTS = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   LOGOUT: '/auth/logout',
+
+  // Upload File
+  UPLOAD_FILE: 'api/files/upload',
   
   // Tasks
-  TASKS: '/tasks',
-  TASK_DETAIL: (id) => `/tasks/${id}`,
-  TASK_CREATE: '/tasks',
-  TASK_UPDATE: (id) => `/tasks/${id}`,
-  TASK_DELETE: (id) => `/tasks/${id}`,
-  TASK_GET_BY_DATE_AND_USERNAME: (date, username) => `/tasks/date/${date}/username/${username}`,
+  TASKS: 'api/tugas',
+  TASK_DETAIL: (id) => `api/tugas/${id}`,
+  TASK_CREATE: 'api/tugas',
+  TASK_UPDATE: (id) => `api/tugas/${id}`,
+  TASK_DELETE: (id) => `api/tugas/${id}`,
+  GET_TASK: 'api/tugas',
+  TASK_GET_BY_DATE_AND_USERNAME: (date, username) => `api/tugas/date/${date}/username/${username}`,
   
   // User
-  USER_PROFILE: '/user/profile',
-  USER_UPDATE: '/user/profile',
+  USER_PROFILE: 'api/user/profile',
+  USER_UPDATE: 'api/user/profile',
   
   // Notifications
-  NOTIFICATIONS: '/notifications',
-  NOTIFICATION_READ: (id) => `/notifications/${id}/read`,
-  NOTIFICATION_GET_BY_USERNAME: (username) => `/notifications/username/${username}`,
+  NOTIFICATIONS: 'api/notifications',
+  NOTIFICATION_READ: (id) => `api/notifications/${id}/read`,
+  NOTIFICATION_GET_BY_USERNAME: (username) => `api/notifications/username/${username}`,
 }; 

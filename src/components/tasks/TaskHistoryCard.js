@@ -19,7 +19,7 @@ export default function TaskHistoryCard({ task, onPress }) {
     endTime,
   } = task;
 
-  const backgroundColor = priorityColors[prioritas.toLowerCase()] || '#6C757D';
+  const backgroundColor = priorityColors[prioritas.toLowerCase()] || '#28A745';
 
   // Format tanggal ke format Indonesia, misal: 12 Juni 2024
   let formattedDate = '-';

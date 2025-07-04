@@ -13,6 +13,14 @@ import SettingsScreen from '../../screens/SettingsScreen';
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
 
+const Logo = () => {
+  return (
+    <View style={styles.logoContainer}>
+      <Text style={styles.logoText}>T</Text>
+    </View>
+  );
+};
+
 const TabButton = ({ label, isFocused, onPress, iconName }) => {
   const translateYValue = useRef(new Animated.Value(0)).current;
   const scaleValue = useRef(new Animated.Value(1)).current;
@@ -141,7 +149,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
   );
 };
 
-export default function BottomNavigation({ navigation }) {
+export default function BottomNavigation() {
   return (
     <Tab.Navigator
       tabBar={props => <CustomTabBar {...props} />}
@@ -153,58 +161,118 @@ export default function BottomNavigation({ navigation }) {
         }
       }}
     >
-      <Tab.Screen name="Agenda" component={AgendaScreen} options={{
-        tabBarButton: () => null,
+      <Tab.Screen name="Agenda" component={AgendaScreen} options={({ navigation }) => ({
         headerShown: true,
         headerShadowVisible: false,
-        headerTitle: '',
+        headerTitle: () => (
+          <View style={styles.headerContainer}>
+            <Logo />
+            <Text style={styles.headerTitle}>TugasKu</Text>
+          </View>
+        ),
         headerStyle: {
-          height: 50
-        }
-      }} />
-      <Tab.Screen name="Riwayat" component={HistoryScreen} options={{
-        tabBarButton: () => null,
+          height: 75
+        },
+        headerRight: () => (
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Settings')}
+            style={{marginRight: 16}}
+          >
+            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+          </TouchableOpacity>
+        )
+      })} />
+      <Tab.Screen name="Riwayat" component={HistoryScreen} options={({ navigation }) => ({
         headerShown: true,
         headerShadowVisible: false,
+        headerTitle: () => (
+          <View style={styles.headerContainer}>
+            <Logo />
+            <Text style={styles.headerTitle}>TugasKu</Text>
+          </View>
+        ),
         headerStyle: {
-          height: 100
-        }
-      }} />
-      <Tab.Screen name="Tambah" component={AddTaskScreen} options={{
-        tabBarButton: () => null,
+          height: 75
+        },
+        headerRight: () => (
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Settings')}
+            style={{marginRight: 16}}
+          >
+            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+          </TouchableOpacity>
+        )
+      })} />
+      <Tab.Screen name="Tambah" component={AddTaskScreen} options={({ navigation }) => ({
+        headerShown: true,
+        headerShadowVisible: false,
+        headerTitle: () => (
+          <View style={styles.headerContainer}>
+            <Logo />
+            <Text style={styles.headerTitle}>TugasKu</Text>
+          </View>
+        ),
+        headerStyle: {
+          height: 75
+        },
+        headerRight: () => (
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Settings')}
+            style={{marginRight: 16}}
+          >
+            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+          </TouchableOpacity>
+        )
+      })} />
+      <Tab.Screen name="Notifikasi" component={NotificationScreen} options={({ navigation }) => ({
+        headerShown: true,
+        headerShadowVisible: false,
+        headerTitle: () => (
+          <View style={styles.headerContainer}>
+            <Logo />
+            <Text style={styles.headerTitle}>TugasKu</Text>
+          </View>
+        ),
+        headerStyle: {
+          height: 75
+        },
+        headerRight: () => (
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Settings')}
+            style={{marginRight: 16}}
+          >
+            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+          </TouchableOpacity>
+        )
+      })} />
+      <Tab.Screen name="Profil" component={ProfileScreen} options={({ navigation }) => ({
         headerShown: true,
         headerShadowVisible: false,
         headerTitle: "",
         headerStyle: {
-          height: 50
-        }
-
-      }} />
-      <Tab.Screen name="Notifikasi" component={NotificationScreen} options={{
-        tabBarButton: () => null,
-        headerShown: true,
-        headerShadowVisible: false,
-        headerStyle: {
-          height: 100
-        }
-      }} />
-      <Tab.Screen name="Profil" component={ProfileScreen} options={{
-        tabBarButton: () => null,
-        headerShown: true,
-        headerShadowVisible: false,
-        headerTitle: "",
-        headerStyle: {
-          height: 100
-        }
-      }} />
-      {/* <Tab.Screen
+          height: 35
+        },
+        headerRight: () => (
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Settings')}
+            style={{marginRight: 16}}
+          >
+            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+          </TouchableOpacity>
+        )
+      })} />
+      <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
           tabBarButton: () => null,
-          headerShown: false,
+          headerShown: true,
+          headerTitle: '',
+          headerStyle: {
+            height: 35
+          },
         }}
-      /> */}
+      />
     </Tab.Navigator>
   );
 }
@@ -252,4 +320,27 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: '600',
   },
-}); 
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 8,
+    color: '#000000',
+  },
+  logoContainer: {
+    width: 32,
+    height: 32,
+    backgroundColor: '#6200ee',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoText: {
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+});

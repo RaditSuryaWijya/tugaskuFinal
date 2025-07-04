@@ -37,7 +37,7 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // Handle 401 Unauthorized
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.result === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         // Refresh token logic bisa ditambahkan di sini
@@ -56,7 +56,7 @@ axiosInstance.interceptors.response.use(
     // Handle error lainnya
     return Promise.reject({
       message: error.response?.data?.message || 'Terjadi kesalahan',
-      status: error.response?.status,
+      status: error.response?.result,
       data: error.response?.data,
     });
   }

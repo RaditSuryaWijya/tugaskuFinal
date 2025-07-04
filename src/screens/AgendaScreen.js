@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { Surface, Text, IconButton, Portal, Modal, Button } from 'react-native-paper';
-import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, getDate, getMonth, getYear, setDate, setMonth, setYear } from 'date-fns';
+import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, getDate, getMonth, getYear, setDate, setMonth, setYear, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { taskService } from '../services';
 
 const HARI = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
 const BULAN = [
@@ -127,41 +128,82 @@ export default function AgendaScreen() {
       </Portal>
     );
   };
+  const [tasks, setTasks] = useState([]);
 
-  const tasks = [
-    {
-      id: 1,
-      title: 'Math',
-      priority: 'Tinggi',
-      startTime: '9:00 AM',
-      endTime: '10:00 AM',
-      color: '#DC3545'
-    },
-    {
-      id: 2,
-      title: 'English',
-      priority: 'Rendah',
-      startTime: '11:00 AM',
-      endTime: '12:00 PM',
-      color: '#28A745'
-    },
-    {
-      id: 3,
-      title: 'History',
-      priority: 'Sedang',
-      startTime: '1:00 PM',
-      endTime: '2:00 PM',
-      color: '#FFC107'
-    },
-    {
-      id: 4,
-      title: 'History',
-      priority: 'Sedang',
-      startTime: '2:00 PM',
-      endTime: '3:00 PM',
-      color: '#FFC107'
+  const getColorByKategori = (kategori) => {
+    switch ((kategori || '').toLowerCase()) {
+      case 'tinggi':
+        return '#DC3545';
+      case 'sedang':
+        return '#FFC107';
+      case 'rendah':
+        return '#28A745';
+      default:
+        return '#1976d2';
     }
-  ];
+  };
+
+  const transformTask = (t, idx) => ({
+    ...t,
+    id: t.idTugas || t.id || idx,
+    judulTugas: t.judulTugas,
+    prioritas: t.kategori,
+    waktuMulai: t.tanggalMulai ? format(parseISO(t.tanggalMulai), 'HH:mm') : '',
+    waktuSelesai: t.tanggalAkhir ? format(parseISO(t.tanggalAkhir), 'HH:mm') : '',
+    warna: getColorByKategori(t.kategori),
+  });
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await taskService.getTask();
+        const transformed = Array.isArray(response.data)
+          ? response.data.map((t, idx) => transformTask(t, idx))
+          : [];
+        setTasks(transformed);
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    };
+    fetchTasks();
+  }, []);
+  console.log("tasks", tasks);
+  
+
+  // const tasks = [
+  //   {
+  //     id: 1,
+  //     title: 'Math',
+  //     priority: 'Tinggi',
+  //     startTime: '9:00 AM',
+  //     endTime: '10:00 AM',
+  //     color: '#DC3545'
+  //   },
+  //   {
+  //     id: 2,
+  //     title: 'English',
+  //     priority: 'Rendah',
+  //     startTime: '11:00 AM',
+  //     endTime: '12:00 PM',
+  //     color: '#28A745'
+  //   },
+  //   {
+  //     id: 3,
+  //     title: 'History',
+  //     priority: 'Sedang',
+  //     startTime: '1:00 PM',
+  //     endTime: '2:00 PM',
+  //     color: '#FFC107'
+  //   },
+  //   {
+  //     id: 4,
+  //     title: 'History',
+  //     priority: 'Sedang',
+  //     startTime: '2:00 PM',
+  //     endTime: '3:00 PM',
+  //     color: '#FFC107'
+  //   }
+  // ];
 
   const renderCalendarStrip = () => {
     return (
@@ -204,17 +246,17 @@ export default function AgendaScreen() {
     );
   };
 
-  const renderTimelineItem = (task) => {
+  const renderTimelineItem = (tasks, index) => {
     return (
-      <View key={task.id} style={styles.timelineItem}>
+      <View key={tasks.id ?? tasks.idTugas ?? index} style={styles.timelineItem}>
         <View style={styles.timeColumn}>
-          <Text style={styles.timeText}>{task.startTime}</Text>
+          <Text style={styles.timeText}>{tasks.waktuMulai}</Text>
         </View>
-        <View style={[styles.taskCard, { backgroundColor: task.color }]}>
-          <Text style={styles.taskTitle}>{task.title}</Text>
-          <Text style={styles.priorityText}>Prioritas: {task.priority}</Text>
+        <View style={[styles.taskCard, { backgroundColor: tasks.warna }]}>
+          <Text style={styles.taskTitle}>{tasks.judulTugas}</Text>
+          <Text style={styles.priorityText}>Prioritas: {tasks.prioritas}</Text>
           <Text style={styles.timeRange}>
-            {task.startTime} - {task.endTime}
+            {tasks.waktuMulai} - {tasks.waktuSelesai}
           </Text>
         </View>
       </View>
@@ -245,7 +287,7 @@ export default function AgendaScreen() {
         <View style={styles.timelineContainer}>
           <Text style={styles.sectionTitle}>Ongoing</Text>
           <ScrollView>
-            {tasks.map(renderTimelineItem)}
+            {tasks.map((task, idx) => renderTimelineItem(task, idx))}
           </ScrollView>
         </View>
 

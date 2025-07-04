@@ -93,17 +93,65 @@ export default function AddTaskScreen({ navigation, route }) {
   };
 
   const handleSave = async () => {
+    // Validasi field wajib
+    if (!taskData.title || !taskData.description || !taskData.startTime || !taskData.endTime || !taskData.priority || !taskData.location || !taskData.photo) {
+      setSnackbarMessage('Semua field wajib diisi!');
+      setSnackbarVisible(true);
+      return;
+    }
     try {
-      await taskService.createTask(taskData);
-      setSnackbarMessage('Tugas berhasil disimpan!');
+      setSnackbarMessage('Mengupload foto...');
+      setSnackbarVisible(true);
+
+      // Upload foto terlebih dahulu
+      const uploadResponse = await taskService.uploadFile(taskData.photo);
+      console.log('Upload response di AddTaskScreen:', uploadResponse);
+      
+      // Cek dan ambil URL file dari response
+      let fotoUrl = taskData.photo; // Default ke local URI jika gagal dapat URL
+      
+      if (uploadResponse && uploadResponse.data) {
+        // Sesuaikan dengan struktur response yang sebenarnya
+        fotoUrl = uploadResponse.data.path || // Jika response berupa {data: {path: '...'}}
+                 uploadResponse.data.url || // Jika response berupa {data: {url: '...'}}
+                 uploadResponse.data.file || // Jika response berupa {data: {file: '...'}}
+                 uploadResponse.data; // Jika response langsung berupa URL string
+      }
+
+      setSnackbarMessage('Menyimpan tugas...');
+      // Mapping ke body API
+      const body = {
+        judulTugas: taskData.title,
+        deskripsi: taskData.description,
+        kategori: taskData.priority,
+        tanggalMulai: new Date(taskData.startTime).toISOString(),
+        tanggalAkhir: new Date(taskData.endTime).toISOString(),
+        statusTugas: 'pending',
+        lokasi: taskData.location?.name || `${taskData.location.latitude},${taskData.location.longitude}`,
+        foto: fotoUrl,
+        idUser: 2
+      };
+
+      console.log('Task body:', body); // Log body sebelum kirim
+      await taskService.addTask(body);
+      setSnackbarMessage('Tugas berhasil ditambahkan!');
       setSnackbarVisible(true);
       setTimeout(() => {
-        navigation.goBack();
-      }, 2000);
+        navigation.navigate('Agenda', {
+          refresh: true,
+          timestamp: new Date().getTime()
+        });
+      }, 1200);
     } catch (error) {
-      setSnackbarMessage('Gagal menyimpan tugas. Silakan coba lagi.');
+      console.error('Detail error:', error);
+      let errorMessage = 'Gagal menambah tugas. ';
+      if (error.response) {
+        errorMessage += error.response.data?.message || 'Terjadi kesalahan pada server.';
+      } else if (error.message) {
+        errorMessage += error.message;
+      }
+      setSnackbarMessage(errorMessage);
       setSnackbarVisible(true);
-      console.error('Error saving task:', error);
     }
   };
 
@@ -137,20 +185,22 @@ export default function AddTaskScreen({ navigation, route }) {
             dense
           />
 
-          <CustomDateTimePicker
-            label="Waktu Mulai"
-            value={taskData.startTime}
-            onChange={handleStartTimeChange}
-            mode="datetime"
-            style={styles.input}
-          />
-          <CustomDateTimePicker
-            label="Waktu Selesai"
-            value={taskData.endTime}
-            onChange={handleEndTimeChange}
-            mode="datetime"
-            style={styles.input}
-          />
+          <View style={styles.timeContainer}>
+            <CustomDateTimePicker
+              label="Waktu Mulai"
+              value={taskData.startTime}
+              onChange={handleStartTimeChange}
+              mode="datetime"
+              style={styles.timeInput}
+            />
+            <CustomDateTimePicker
+              label="Waktu Selesai" 
+              value={taskData.endTime}
+              onChange={handleEndTimeChange}
+              mode="datetime"
+              style={styles.timeInput}
+            />
+          </View>
 
           <View style={styles.row}>
             <Button
@@ -259,6 +309,17 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 12,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 12,
+  },
+  timeInput: {
+    flex: 1,
     backgroundColor: '#fff',
     borderRadius: 8,
   },

@@ -73,11 +73,12 @@ export default function NotificationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FAFAFA',
   },
   surface: {
     flex: 1,
     elevation: 4,
+    backgroundColor: '#FAFAFA',
   },
   content: {
     flex: 1,

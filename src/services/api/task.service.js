@@ -117,6 +117,59 @@ class TaskService {
       throw error;
     }
   }
+
+  async getTask(params = {}) {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.GET_TASK);
+      console.log("response", response);
+      return response;
+    } catch (error) {
+      console.log("error", error);
+      throw error;  
+    }
+  }
+
+  async addTask(taskData) {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.TASK_CREATE, taskData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async uploadFile(fileUri) {
+    try {
+      const formData = new FormData();
+      
+      // Ambil nama file dari URI
+      const fileName = fileUri.split('/').pop();
+      const match = /\.(\w+)$/.exec(fileName);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      // Append file ke FormData
+      formData.append('file', {
+        uri: fileUri,
+        name: fileName,
+        type
+      });
+
+      const response = await axiosInstance.post(ENDPOINTS.UPLOAD_FILE, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Upload response:', response);
+      return response;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+  }
 }
 
 export default new TaskService(); 
