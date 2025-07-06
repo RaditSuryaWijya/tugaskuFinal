@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   selectedDateContainer: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#3892c6',
   },
   dayName: {
     fontSize: 12,

@@ -107,15 +107,15 @@ export default function AddTaskScreen({ navigation, route }) {
       const uploadResponse = await taskService.uploadFile(taskData.photo);
       console.log('Upload response di AddTaskScreen:', uploadResponse);
       
-      // Cek dan ambil URL file dari response
-      let fotoUrl = taskData.photo; // Default ke local URI jika gagal dapat URL
+
+
+      // Ambil nama file dari response
+      const fileName = uploadResponse.fileName || // Jika response berupa {fileName: '...'}
+                      uploadResponse.data.file || // Jika response berupa {file: '...'}
+                      uploadResponse.data; // Jika response langsung berupa nama file
       
-      if (uploadResponse && uploadResponse.data) {
-        // Sesuaikan dengan struktur response yang sebenarnya
-        fotoUrl = uploadResponse.data.path || // Jika response berupa {data: {path: '...'}}
-                 uploadResponse.data.url || // Jika response berupa {data: {url: '...'}}
-                 uploadResponse.data.file || // Jika response berupa {data: {file: '...'}}
-                 uploadResponse.data; // Jika response langsung berupa URL string
+      if (!fileName) {
+        throw new Error('Nama file tidak ditemukan dalam response');
       }
 
       setSnackbarMessage('Menyimpan tugas...');
@@ -128,11 +128,11 @@ export default function AddTaskScreen({ navigation, route }) {
         tanggalAkhir: new Date(taskData.endTime).toISOString(),
         statusTugas: 'pending',
         lokasi: taskData.location?.name || `${taskData.location.latitude},${taskData.location.longitude}`,
-        foto: fotoUrl,
+        foto: fileName, // Gunakan nama file saja
         idUser: 2
       };
 
-      console.log('Task body:', body); // Log body sebelum kirim
+      console.log('Task body:', body);
       await taskService.addTask(body);
       setSnackbarMessage('Tugas berhasil ditambahkan!');
       setSnackbarVisible(true);
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#6200ee',
+    color: '#3892c6',
     marginBottom: 20,
     alignSelf: 'center',
   },
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 2,
     borderRadius: 8,
-    borderColor: '#e0e0e0',
+    borderColor: '#3892c6',
   },
   button: {
     marginTop: 0,
@@ -350,13 +350,13 @@ const styles = StyleSheet.create({
   cancelButton: {
     flex: 1,
     marginRight: 4,
-    borderColor: '#6200ee',
+    borderColor: '#3892c6',
     backgroundColor: '#fff',
   },
   saveButton: {
     flex: 1,
     marginLeft: 4,
-    backgroundColor: '#6200ee',
+    backgroundColor: '#2654a1',
   },
   preview: {
     width: '100%',

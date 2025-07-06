@@ -43,7 +43,7 @@ export default function NotificationScreen() {
                   <List.Icon
                     {...props}
                     icon={notification.isRead ? "bell-outline" : "bell"}
-                    color={notification.isRead ? "#666" : "#6200ee"}
+                    color={notification.isRead ? "#666" : "#3892c6"}
                   />
                 )}
                 right={props => (
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   header: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#3892c6',
     elevation: 4,
   },
 }); 

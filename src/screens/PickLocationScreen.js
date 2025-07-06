@@ -104,7 +104,7 @@ export default function PickLocationScreen({ navigation, route }) {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#6200ee" />
+        <ActivityIndicator size="large" color="#3892c6" />
         <Text style={styles.loadingText}>Memuat peta...</Text>
       </View>
     );
@@ -192,10 +192,10 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: '#fff',
-    borderColor: '#6200ee',
+    borderColor: '#3892c6',
   },
   saveButton: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#3892c6',
   },
   centerContainer: {
     flex: 1,

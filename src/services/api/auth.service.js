@@ -7,10 +7,10 @@ class AuthService {
   // Development token untuk mode pengembangan
   DEV_TOKEN = 'dev_token_123';
 
-  async login(username, password) {
+  async login(email, password) {
     try {
       const response = await axiosInstance.post(ENDPOINTS.LOGIN, {
-        username,
+        email,
         password,
       });
 

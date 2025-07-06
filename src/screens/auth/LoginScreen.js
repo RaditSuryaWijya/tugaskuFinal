@@ -4,28 +4,33 @@ import { TextInput, Button, Text, Surface, Divider } from 'react-native-paper';
 import { authService } from '../../services';
 import { IS_DEVELOPMENT } from '../../config/constants';
 import { useAuth } from '../../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
-  const { setIsAuthenticated } = useAuth();
-  const [username, setUsername] = useState('');
+  const { setIsAuthenticated, loginSuccess } = useAuth();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-    if (!username || !password) {
-      setError('Username dan password harus diisi');
+    if (!email || !password) {
+      setError('Email dan password harus diisi');
       return;
     }
 
     try {
       setLoading(true);
       setError('');
-      await authService.login(username, password);
-      setIsAuthenticated(true);
+      const response = await authService.login(email, password);
+      if (response && response.result === 200) {
+        await loginSuccess(response.data);
+      } else {
+        setError(response?.message || 'Gagal login. Silakan coba lagi.');
+      }
     } catch (error) {
-      setError(error.message || 'Gagal login. Silakan coba lagi.');
+      setError(error?.response?.data?.message || error.message || 'Gagal login. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }
@@ -47,9 +52,9 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.title}>Login TugasKu</Text>
           
           <TextInput
-            label="Username"
-            value={username}
-            onChangeText={setUsername}
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
             style={styles.input}
             mode="outlined"
             autoCapitalize="none"
@@ -143,7 +148,7 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 24,
     paddingVertical: 8,
-    backgroundColor: '#6200ee',
+    backgroundColor: '#2654a1',
   },
   errorText: {
     color: '#B00020',

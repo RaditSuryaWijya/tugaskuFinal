@@ -1,22 +1,24 @@
 // API Configuration
-export const API_CONFIG = {
+export const  API_CONFIG = {
   BASE_URL: 'http://192.168.100.3:8081', // Ganti dengan base URL API Anda
   TIMEOUT: 30000, // 30 detik
   HEADERS: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-  }
+  },
+  IMAGE_URL: 'http://192.168.100.3:8081/uploads/images' // Base URL untuk gambar
 };
 
 // API Endpoints
 export const ENDPOINTS = {
   // Auth
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
-  LOGOUT: '/auth/logout',
+  LOGIN: 'api/users/login',
+  REGISTER: 'api/users/register',
+  LOGOUT: 'api/users/logout',
 
   // Upload File
   UPLOAD_FILE: 'api/files/upload',
+  GET_FILE: (filename) => `api/files/${filename}`,
   
   // Tasks
   TASKS: 'api/tugas',
@@ -26,6 +28,8 @@ export const ENDPOINTS = {
   TASK_DELETE: (id) => `api/tugas/${id}`,
   GET_TASK: 'api/tugas',
   TASK_GET_BY_DATE_AND_USERNAME: (date, username) => `api/tugas/date/${date}/username/${username}`,
+  GET_TUGAS_BY_USER_AND_DATE: (idUser, date) => `api/tugas/user/${idUser}/date?date=${date}`,
+  GET_TUGAS_BY_USER_AND_DATE_RANGE: (idUser, startDate, endDate) => `api/tugas/user/${idUser}/range?start=${startDate}&end=${endDate}`,
   
   // User
   USER_PROFILE: 'api/user/profile',

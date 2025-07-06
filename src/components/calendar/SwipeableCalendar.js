@@ -20,14 +20,14 @@ export default function SwipeableCalendar({ onDayPress }) {
         markedDates={{
           [selectedDate]: {
             selected: true,
-            selectedColor: '#6200ee',
+            selectedColor: '#3892c6',
           },
         }}
         theme={{
-          todayTextColor: '#6200ee',
-          selectedDayBackgroundColor: '#6200ee',
+          todayTextColor: '#3892c6',
+          selectedDayBackgroundColor: '#3892c6',
           selectedDayTextColor: '#ffffff',
-          arrowColor: '#6200ee',
+          arrowColor: '#3892c6',
         }}
         enableSwipeMonths={true}
       />

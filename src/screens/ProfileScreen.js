@@ -1,13 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { Surface, Text, Avatar, Button, Divider, Portal, Dialog } from 'react-native-paper';
 import { useAuth } from '../context/AuthContext';
 import { IS_DEVELOPMENT } from '../config/constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
   const { logout } = useAuth();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } catch (e) {
+        setUser(null);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -21,12 +37,15 @@ export default function ProfileScreen() {
     }
   };
 
-  const profileData = {
-    noTelepon: '+971 52 657-0686',
-    email: 'azizahsal@gmail.com',
-    jenisKelamin: 'Perempuan',
-    tanggalLahir: '20 April 2005',
-    kataSandi: '********'
+  const profileData = user || {
+    noTelepon: '-',
+    email: '-',
+    jenisKelamin: '-',
+    tanggalLahir: '-',
+    kataSandi: '********',
+    fotoProfil: null,
+    status: '-',
+    idUser: '-',
   };
 
   const renderProfileItem = (icon, label, value) => (
@@ -47,7 +66,7 @@ export default function ProfileScreen() {
         <ScrollView>
           <View style={styles.header}>
             <Avatar.Icon size={80} icon="account" style={styles.avatar} />
-            <Text style={styles.username}>Azizah Salsa</Text>
+            <Text style={styles.username}>{user ? user.email : 'Azizah Salsa'}</Text>
             {IS_DEVELOPMENT && <Text style={styles.devBadge}>Mode Pengembangan</Text>}
           </View>
 
@@ -129,14 +148,14 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   avatar: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#3892c6',
     marginBottom: 16,
   },
   username: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#6200ee',
+    color: '#3892c6',
   },
   devBadge: {
     color: '#666',
@@ -164,7 +183,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   fieldIcon: {
-    backgroundColor: '#6200ee20',
+    backgroundColor: '#3892c620',
   },
   profileItemContent: {
     flex: 1,

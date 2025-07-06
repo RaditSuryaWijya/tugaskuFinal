@@ -4,6 +4,7 @@ import { Surface, Text, IconButton, Portal, Modal, Button } from 'react-native-p
 import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, getDate, getMonth, getYear, setDate, setMonth, setYear, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { taskService } from '../services';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HARI = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
 const BULAN = [
@@ -156,17 +157,31 @@ export default function AgendaScreen() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await taskService.getTask();
+        setTasks([]); // Reset tasks sebelum fetch agar data lama tidak nempel
+        // Ambil idUser dari AsyncStorage
+        const userData = await AsyncStorage.getItem('user');
+        const user = userData ? JSON.parse(userData) : null;
+        const idUser = user?.idUser;
+        if (!idUser) return;
+        // Format tanggal ke YYYY-MM-DD
+        const dateStr = format(selectedDate, 'yyyy-MM-dd');
+        const response = await taskService.getTugasByUserAndDate(idUser, dateStr);
         const transformed = Array.isArray(response.data)
           ? response.data.map((t, idx) => transformTask(t, idx))
           : [];
         setTasks(transformed);
       } catch (error) {
-        console.error('Error fetching tasks:', error);
+        setTasks([]); // Pastikan tasks kosong jika error
+        // Jangan tampilkan error di console jika error karena tidak ada tugas
+        if (error?.response?.status && error.response.status === 404) {
+          // Tidak ada tugas, cukup tasks kosong
+        } else {
+          console.error('Error fetching tasks:', error);
+        }
       }
     };
     fetchTasks();
-  }, []);
+  }, [selectedDate]);
   console.log("tasks", tasks);
   
 
@@ -287,7 +302,13 @@ export default function AgendaScreen() {
         <View style={styles.timelineContainer}>
           <Text style={styles.sectionTitle}>Ongoing</Text>
           <ScrollView>
-            {tasks.map((task, idx) => renderTimelineItem(task, idx))}
+            {tasks.length === 0 ? (
+              <Text style={{ color: '#666', textAlign: 'center', marginTop: 32 }}>
+                Tidak ada tugas pada tanggal ini
+              </Text>
+            ) : (
+              tasks.map((task, idx) => renderTimelineItem(task, idx))
+            )}
           </ScrollView>
         </View>
 
