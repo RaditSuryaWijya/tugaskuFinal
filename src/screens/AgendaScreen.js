@@ -170,6 +170,7 @@ export default function AgendaScreen() {
           ? response.data.map((t, idx) => transformTask(t, idx))
           : [];
         setTasks(transformed);
+        console.log("response dari api yang sudah di ubah"+transformed)
       } catch (error) {
         setTasks([]); // Pastikan tasks kosong jika error
         // Jangan tampilkan error di console jika error karena tidak ada tugas
