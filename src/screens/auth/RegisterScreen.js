@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { TextInput, Button, Text, Surface, IconButton } from 'react-native-paper';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
+import {
+  TextInput,
+  Button,
+  Text,
+  Surface,
+  Snackbar,
+  Menu,
+} from 'react-native-paper';
 import { authService } from '../../services';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
@@ -8,23 +20,32 @@ import { id } from 'date-fns/locale';
 
 export default function RegisterScreen({ navigation }) {
   const [formData, setFormData] = useState({
-    noTelepon: '',
     email: '',
-    jenisKelamin: 'Perempuan',
-    tanggalLahir: new Date('2005-04-20'),
     kataSandi: '',
-    konfirmasiKataSandi: ''
+    konfirmasiKataSandi: '',
+    noTelepon: '',
+    jenisKelamin: '',
+    tanggalLahir: new Date(),
+    fotoProfil: '',
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showGenderPicker, setShowGenderPicker] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [genderMenuVisible, setGenderMenuVisible] = useState(false);
 
   const handleRegister = async () => {
-    if (!formData.noTelepon || !formData.email || !formData.kataSandi || !formData.konfirmasiKataSandi) {
+    if (
+      !formData.noTelepon ||
+      !formData.email ||
+      !formData.kataSandi ||
+      !formData.konfirmasiKataSandi ||
+      !formData.jenisKelamin
+    ) {
       setError('Semua field harus diisi');
       return;
     }
@@ -37,10 +58,39 @@ export default function RegisterScreen({ navigation }) {
     try {
       setLoading(true);
       setError('');
-      await authService.register(formData);
-      navigation.replace('Login');
+      setSnackbarMessage('Menyimpan data register...');
+      setSnackbarVisible(true);
+
+      const body = {
+        email: formData.email,
+        password: formData.kataSandi,
+        noTelepon: formData.noTelepon,
+        jenisKelamin: formData.jenisKelamin,
+        tanggalLahir: new Date(formData.tanggalLahir).toISOString(),
+        fotoProfil: formData.fotoProfil,
+      };
+
+      console.log('Register body:', body);
+      await authService.register(body);
+
+      setSnackbarMessage('Registrasi berhasil!');
+      setSnackbarVisible(true);
+      setTimeout(() => {
+        navigation.navigate('Agenda', {
+          refresh: true,
+          timestamp: new Date().getTime(),
+        });
+      }, 1200);
     } catch (error) {
-      setError(error.message || 'Gagal mendaftar. Silakan coba lagi.');
+      console.error('Detail error:', error);
+      let errorMessage = 'Gagal registrasi. ';
+      if (error.response) {
+        errorMessage += error.response.data?.message || 'Terjadi kesalahan pada server.';
+      } else if (error.message) {
+        errorMessage += error.message;
+      }
+      setSnackbarMessage(errorMessage);
+      setSnackbarVisible(true);
     } finally {
       setLoading(false);
     }
@@ -59,21 +109,25 @@ export default function RegisterScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <Text style={styles.title}>Daftar TugasKu</Text>
-            
+
             <TextInput
               label="No Telepon"
               value={formData.noTelepon}
-              onChangeText={(text) => setFormData({ ...formData, noTelepon: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, noTelepon: text })
+              }
               style={styles.input}
               mode="outlined"
               keyboardType="phone-pad"
               placeholder="+628 52 657-9999"
             />
-            
+
             <TextInput
               label="Email"
               value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, email: text })
+              }
               style={styles.input}
               mode="outlined"
               keyboardType="email-address"
@@ -81,32 +135,65 @@ export default function RegisterScreen({ navigation }) {
               placeholder="azizahsal@gmail.com"
             />
 
-            <TextInput
-              label="Jenis Kelamin"
-              value={formData.jenisKelamin}
-              style={styles.input}
-              mode="outlined"
-              right={<TextInput.Icon icon="chevron-down" />}
-              editable={false}
-            />
+            <View style={styles.dropdownWrapper}>
+              <Text style={styles.dropdownLabel}>Jenis Kelamin</Text>
+              <Menu
+                visible={genderMenuVisible}
+                onDismiss={() => setGenderMenuVisible(false)}
+                anchor={
+                  <Button
+                    mode="outlined"
+                    onPress={() => setGenderMenuVisible(true)}
+                    contentStyle={{ justifyContent: 'space-between' }}
+                    style={styles.dropdownButton}
+                  >
+                    {formData.jenisKelamin || 'Pilih jenis kelamin'}
+                  </Button>
+                }
+              >
+                <Menu.Item
+                  onPress={() => {
+                    setFormData({ ...formData, jenisKelamin: 'Laki-laki' });
+                    setGenderMenuVisible(false);
+                  }}
+                  title="Laki-laki"
+                />
+                <Menu.Item
+                  onPress={() => {
+                    setFormData({ ...formData, jenisKelamin: 'Perempuan' });
+                    setGenderMenuVisible(false);
+                  }}
+                  title="Perempuan"
+                />
+              </Menu>
+            </View>
 
             <TextInput
               label="Tanggal Lahir"
-              value={format(formData.tanggalLahir, 'dd MMMM yyyy', { locale: id })}
+              value={format(formData.tanggalLahir, 'dd MMMM yyyy', {
+                locale: id,
+              })}
               style={styles.input}
               mode="outlined"
-              right={<TextInput.Icon icon="calendar" onPress={() => setShowDatePicker(true)} />}
+              right={
+                <TextInput.Icon
+                  icon="calendar"
+                  onPress={() => setShowDatePicker(true)}
+                />
+              }
               editable={false}
             />
 
             <TextInput
               label="Kata Sandi"
               value={formData.kataSandi}
-              onChangeText={(text) => setFormData({ ...formData, kataSandi: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, kataSandi: text })
+              }
               secureTextEntry={!showPassword}
               right={
                 <TextInput.Icon
-                  icon={showPassword ? "eye-off" : "eye"}
+                  icon={showPassword ? 'eye-off' : 'eye'}
                   onPress={() => setShowPassword(!showPassword)}
                 />
               }
@@ -117,11 +204,13 @@ export default function RegisterScreen({ navigation }) {
             <TextInput
               label="Konfirmasi Kata Sandi"
               value={formData.konfirmasiKataSandi}
-              onChangeText={(text) => setFormData({ ...formData, konfirmasiKataSandi: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, konfirmasiKataSandi: text })
+              }
               secureTextEntry={!showConfirmPassword}
               right={
                 <TextInput.Icon
-                  icon={showConfirmPassword ? "eye-off" : "eye"}
+                  icon={showConfirmPassword ? 'eye-off' : 'eye'}
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                 />
               }
@@ -163,6 +252,14 @@ export default function RegisterScreen({ navigation }) {
             maximumDate={new Date()}
           />
         )}
+
+        <Snackbar
+          visible={snackbarVisible}
+          onDismiss={() => setSnackbarVisible(false)}
+          duration={3000}
+        >
+          {snackbarMessage}
+        </Snackbar>
       </Surface>
     </SafeAreaView>
   );
@@ -199,6 +296,27 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: '#fff',
   },
+dropdownWrapper: {
+  marginBottom: 16,
+},
+
+dropdownLabel: {
+  marginBottom: 4,
+  fontSize: 12,
+  color: '#6a6a6a',
+  fontWeight: '500',
+},
+
+dropdownButton: {
+  borderWidth: 1,
+  borderColor: '#C4C4C4',
+  borderRadius: 4,
+  height: 56,
+  justifyContent: 'center',
+  paddingHorizontal: 12,
+  backgroundColor: '#fff',
+},
+
   button: {
     marginTop: 24,
     paddingVertical: 8,
@@ -219,4 +337,4 @@ const styles = StyleSheet.create({
   loginButton: {
     marginLeft: -8,
   },
-}); 
+});

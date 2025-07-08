@@ -11,9 +11,9 @@ export const API_CONFIG = {
 // API Endpoints
 export const ENDPOINTS = {
   // Auth
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
-  LOGOUT: '/auth/logout',
+  LOGIN: 'api/users/login',
+  REGISTER: 'api/users/register',
+  LOGOUT: 'api/users/logout',
 
   // Upload File
   UPLOAD_FILE: 'api/files/upload',

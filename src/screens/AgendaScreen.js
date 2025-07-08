@@ -157,10 +157,12 @@ export default function AgendaScreen() {
     const fetchTasks = async () => {
       try {
         const response = await taskService.getTask();
+        console.log("response dari api"+response);
         const transformed = Array.isArray(response.data)
           ? response.data.map((t, idx) => transformTask(t, idx))
           : [];
         setTasks(transformed);
+        console.log("response dari api yang sudah di ubah"+transformed)
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
