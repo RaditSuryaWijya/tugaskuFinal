@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 24,
     textAlign: 'center',
-    color: '#6200ee',
+    color: '#3892c6',
   },
   input: {
     marginBottom: 16,
@@ -320,7 +320,7 @@ dropdownButton: {
   button: {
     marginTop: 24,
     paddingVertical: 8,
-    backgroundColor: '#6200ee',
+    backgroundColor: '#2654a1',
     borderRadius: 8,
   },
   errorText: {

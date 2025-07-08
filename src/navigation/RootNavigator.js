@@ -26,7 +26,7 @@ export default function RootNavigator({ isAuthenticated }) {
       )}
       <Stack.Group screenOptions={{
         headerStyle: {
-          backgroundColor: '#6200ee',
+          backgroundColor: '#3892c6',
         },
         headerTintColor: '#fff',
         headerShown: true,
@@ -53,7 +53,7 @@ export default function RootNavigator({ isAuthenticated }) {
         options={{
           title: 'Detail Tugas',
           headerStyle: {
-            backgroundColor: '#6200ee',
+            backgroundColor: '#3892c6',
           },
           headerShown: false,
           headerTintColor: '#fff',

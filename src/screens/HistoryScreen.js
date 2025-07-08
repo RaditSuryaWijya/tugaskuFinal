@@ -7,6 +7,7 @@ import MiniDashboard from '../components/dashboard/MiniDashboard';
 import TaskHistoryCard from '../components/tasks/TaskHistoryCard';
 import WeekPicker from '../components/filters/WeekPicker';
 import TaskService from '../services/api/task.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HistoryScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
@@ -54,9 +55,28 @@ export default function HistoryScreen({ navigation }) {
       setLoading(true);
       setError(null);
       
-      const response = await TaskService.getTask();
+      // Ambil idUser dari AsyncStorage
+      const userData = await AsyncStorage.getItem('user');
+      const user = userData ? JSON.parse(userData) : null;
+      const idUser = user?.idUser;
+      if (!idUser) {
+        setTasks([]);
+        setStats({ completed: 0, pending: 0 });
+        return;
+      }
+
+      // Ambil start dan end date minggu dalam format ISO string
+      const weekStart = startOfWeek(selectedDate, { locale: id });
+      const weekEnd = endOfWeek(selectedDate, { locale: id });
+      const startDate = format(weekStart, "yyyy-MM-dd'T'00:00:00");
+      const endDate = format(weekEnd, "yyyy-MM-dd'T'23:59:59");
+      const response = await TaskService.getTugasByUserAndDateRange(idUser, startDate, endDate);
+      
+      // Jika tidak ada data, set tasks kosong
       if (!response || !response.data) {
-        throw new Error('Data tidak tersedia');
+        setTasks([]);
+        setStats({ completed: 0, pending: 0 });
+        return;
       }
 
       const fetchedTasks = response.data.map(transformTaskData);
@@ -71,8 +91,9 @@ export default function HistoryScreen({ navigation }) {
       });
       console.log("thisWeekTasks", thisWeekTasks);
     } catch (err) {
-      setError('Gagal memuat data riwayat tugas: ' + (err.message || 'Terjadi kesalahan'));
       console.error('Error fetching task history:', err);
+      setTasks([]);
+      setStats({ completed: 0, pending: 0 });
     } finally {
       setLoading(false);
     }
@@ -80,12 +101,7 @@ export default function HistoryScreen({ navigation }) {
 
   const handleWeekChange = (newDate) => {
     setSelectedDate(newDate);
-    const filteredTasks = getWeekTasks(newDate, allTasks);
-    setTasks(filteredTasks);
-    setStats({
-      completed: filteredTasks.filter(task => task.status === 'complete').length,
-      pending: filteredTasks.filter(task => task.status === 'pending').length
-    });
+    fetchTasks();
   };
 
   const handleTaskPress = (task) => {
@@ -94,7 +110,7 @@ export default function HistoryScreen({ navigation }) {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [selectedDate]);
 
   const renderHeader = () => {
     return (
@@ -114,7 +130,7 @@ export default function HistoryScreen({ navigation }) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6200ee" />
+        <ActivityIndicator size="large" color="#3892c6" />
       </View>
     );
   }
@@ -180,4 +196,4 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 24,
   },
-}); 
+});

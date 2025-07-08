@@ -151,22 +151,48 @@ class TaskService {
       const match = /\.(\w+)$/.exec(fileName);
       const type = match ? `image/${match[1]}` : 'image/jpeg';
       
-      // Append file ke FormData
+      // Append file ke FormData dengan nama yang sesuai
       formData.append('file', {
         uri: fileUri,
-        name: fileName,
-        type
+        type,
+        name: fileName
       });
 
+      console.log('Uploading file:', { fileName, type });
+      
       const response = await axiosInstance.post(ENDPOINTS.UPLOAD_FILE, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        transformResponse: [data => {
+          // Parse response
+          const parsedData = JSON.parse(data);
+          console.log('Upload response:', parsedData);
+          return parsedData;
+        }],
       });
-      console.log('Upload response:', response);
+      
       return response;
     } catch (error) {
       console.error('Upload error:', error);
+      throw error;
+    }
+  }
+
+  async getTugasByUserAndDate(idUser, date) {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.GET_TUGAS_BY_USER_AND_DATE(idUser, date));
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTugasByUserAndDateRange(idUser, startDate, endDate) {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.GET_TUGAS_BY_USER_AND_DATE_RANGE(idUser, startDate, endDate));
+      return response;
+    } catch (error) {
       throw error;
     }
   }

@@ -45,7 +45,7 @@ export default function SettingsScreen({ navigation }) {
                   left={() => (
                     <RadioButton.Android 
                       value={lang.value} 
-                      color="#6200ee"
+                      color="#3892c6"
                     />
                   )}
                   onPress={() => handleLanguageChange(lang.value)}
@@ -65,7 +65,7 @@ export default function SettingsScreen({ navigation }) {
                 <Switch
                   value={settings.darkMode}
                   onValueChange={() => handleSettingToggle('darkMode')}
-                  color="#6200ee"
+                  color="#3892c6"
                 />
               )}
             />
@@ -82,7 +82,7 @@ export default function SettingsScreen({ navigation }) {
                 <Switch
                   value={settings.notifications}
                   onValueChange={() => handleSettingToggle('notifications')}
-                  color="#6200ee"
+                  color="#3892c6"
                 />
               )}
             />
@@ -93,7 +93,7 @@ export default function SettingsScreen({ navigation }) {
                 <Switch
                   value={settings.soundEnabled}
                   onValueChange={() => handleSettingToggle('soundEnabled')}
-                  color="#6200ee"
+                  color="#3892c6"
                 />
               )}
             />
@@ -104,7 +104,7 @@ export default function SettingsScreen({ navigation }) {
                 <Switch
                   value={settings.vibrationEnabled}
                   onValueChange={() => handleSettingToggle('vibrationEnabled')}
-                  color="#6200ee"
+                  color="#3892c6"
                 />
               )}
             />
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#6200ee',
+    color: '#3892c6',
     textAlign: 'center',
     marginVertical: 16,
   },

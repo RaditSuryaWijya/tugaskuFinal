@@ -178,7 +178,7 @@ export default function BottomNavigation() {
             onPress={() => navigation.navigate('Settings')}
             style={{marginRight: 16}}
           >
-            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
           </TouchableOpacity>
         )
       })} />
@@ -199,7 +199,7 @@ export default function BottomNavigation() {
             onPress={() => navigation.navigate('Settings')}
             style={{marginRight: 16}}
           >
-            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
           </TouchableOpacity>
         )
       })} />
@@ -220,7 +220,7 @@ export default function BottomNavigation() {
             onPress={() => navigation.navigate('Settings')}
             style={{marginRight: 16}}
           >
-            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
           </TouchableOpacity>
         )
       })} />
@@ -241,7 +241,7 @@ export default function BottomNavigation() {
             onPress={() => navigation.navigate('Settings')}
             style={{marginRight: 16}}
           >
-            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
           </TouchableOpacity>
         )
       })} />
@@ -257,7 +257,7 @@ export default function BottomNavigation() {
             onPress={() => navigation.navigate('Settings')}
             style={{marginRight: 16}}
           >
-            <MaterialCommunityIcons name="cog" size={24} color="#6200ee" />
+            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
           </TouchableOpacity>
         )
       })} />
@@ -303,10 +303,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   focusedIconContainer: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#3892c6',
     borderRadius: 12,
     elevation: 4,
-    shadowColor: '#6200ee',
+    shadowColor: '#3892c6',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   tabText: {
-    color: '#6200ee',
+    color: '#3892c6',
     fontSize: 12,
     marginTop: 4,
     fontWeight: '600',
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     width: 32,
     height: 32,
-    backgroundColor: '#6200ee',
+    backgroundColor: '#3892c6',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
