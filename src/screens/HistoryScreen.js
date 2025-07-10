@@ -27,20 +27,20 @@ export default function HistoryScreen({ navigation, route }) {
       const startDate = parseISO(apiTask.tanggalMulai);
       const endDate = parseISO(apiTask.tanggalAkhir);
       
-      return {
-        id: apiTask.idTugas,
-        title: apiTask.judulTugas,
-        description: apiTask.deskripsi,
-        prioritas: apiTask.kategori,
+    return {
+      id: apiTask.idTugas,
+      title: apiTask.judulTugas,
+      description: apiTask.deskripsi,
+      prioritas: apiTask.kategori,
         startTime: format(startDate, 'dd-MM-yyyy HH:mm'),
         endTime: format(endDate, 'dd-MM-yyyy HH:mm'),
-        date: apiTask.tanggalMulai,
-        status: apiTask.statusTugas,
-        location: {
-          coordinates: apiTask.lokasi,
-        },
-        photo: apiTask.foto
-      };
+      date: apiTask.tanggalMulai,
+      status: apiTask.statusTugas,
+      location: {
+        coordinates: apiTask.lokasi,
+      },
+      photo: apiTask.foto
+    };
     } catch (error) {
       console.error('Error transforming task:', error, apiTask);
       return null;
@@ -139,9 +139,9 @@ export default function HistoryScreen({ navigation, route }) {
   // Hapus Surface, biarkan datepicker tanpa container khusus
   const renderHeader = () => {
     return (
-      <MiniDashboard
-        completedTasks={stats.completed}
-        pendingTasks={stats.pending}
+        <MiniDashboard
+          completedTasks={stats.completed}
+          pendingTasks={stats.pending}
       >
         <View style={styles.rangeRow}>
           <View style={styles.rangePickerWrapper}>
@@ -162,8 +162,8 @@ export default function HistoryScreen({ navigation, route }) {
               value={endDate}
               onChange={date => setEndDate(date)}
               mode="date"
-            />
-          </View>
+        />
+      </View>
         </View>
         <Text style={styles.rangeInfo}>
           {format(startDate, 'dd MMM yyyy', { locale: id })} - {format(endDate, 'dd MMM yyyy', { locale: id })}

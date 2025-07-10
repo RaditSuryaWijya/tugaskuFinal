@@ -171,3 +171,11 @@
 - Jest documentation
 - React Native Testing Library
 - E2E testing guides 
+
+## [Update] Fitur Notifikasi Reminder Tugas
+- AddTaskScreen kini memiliki dropdown "Ingatkan saya" dengan opsi preset (5m, 15m, 30m, 1h, 1d sebelum selesai) dan custom (date-time picker).
+- Notifikasi dijadwalkan menggunakan expo-notifications sesuai waktu yang dipilih user.
+- Id notifikasi disimpan di AsyncStorage dengan key unik per tugas.
+- Jika tugas dihapus dari DetailTaskScreen, notifikasi juga dibatalkan dan key dihapus.
+- UI/UX konsisten dengan tema TugasKu, label dan helper text dalam Bahasa Indonesia.
+- Sudah diuji pada Android & iOS (perlu regression test lanjutan). 

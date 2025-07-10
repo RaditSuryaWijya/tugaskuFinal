@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, { Marker } from 'react-native-maps';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { Menu, List, Portal, Dialog, RadioButton } from 'react-native-paper';
 
 export default function AddTaskScreen({ navigation, route }) {
   const initialFormState = {
@@ -53,6 +54,23 @@ export default function AddTaskScreen({ navigation, route }) {
   const [userId, setUserId] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  // Tambahkan state untuk reminder
+  const [reminderType, setReminderType] = useState('none'); // none, 5m, 15m, 30m, 1h, 1d, custom
+  const [reminderCustom, setReminderCustom] = useState(null);
+  // Hapus state reminderMenuVisible, ganti dengan reminderDialogVisible
+  const [reminderDialogVisible, setReminderDialogVisible] = useState(false);
+
+  // Helper untuk label
+  const reminderOptions = [
+    { value: 'none', label: 'Tidak usah diingatkan' },
+    { value: '5m', label: '5 menit sebelum' },
+    { value: '15m', label: '15 menit sebelum' },
+    { value: '30m', label: '30 menit sebelum' },
+    { value: '1h', label: '1 jam sebelum' },
+    { value: '1d', label: '1 hari sebelum' },
+    { value: 'custom', label: 'Custom...' },
+  ];
 
   useEffect(() => {
     const getUserId = async () => {
@@ -257,25 +275,44 @@ export default function AddTaskScreen({ navigation, route }) {
       const response = await taskService.addTask(body);
       console.log('Response dari API:', response);
 
-      // Jadwalkan notifikasi 5 jam sebelum waktu selesai
-      try {
+      // Jadwalkan notifikasi sesuai pilihan reminder
+      let reminderDate = null;
+      if (reminderType === 'custom' && reminderCustom) {
+        reminderDate = new Date(reminderCustom);
+      } else if (reminderType !== 'none') {
         const endTime = new Date(taskData.endTime);
-        const triggerTime = new Date(endTime.getTime() - 5 * 60 * 60 * 1000); // 5 jam sebelum waktu selesai
-        
-        if (triggerTime > new Date()) {
-          await Notifications.scheduleNotificationAsync({
+        switch (reminderType) {
+          case '5m': reminderDate = new Date(endTime.getTime() - 5 * 60 * 1000); break;
+          case '15m': reminderDate = new Date(endTime.getTime() - 15 * 60 * 1000); break;
+          case '30m': reminderDate = new Date(endTime.getTime() - 30 * 60 * 1000); break;
+          case '1h': reminderDate = new Date(endTime.getTime() - 60 * 60 * 1000); break;
+          case '1d': reminderDate = new Date(endTime.getTime() - 24 * 60 * 60 * 1000); break;
+          default: break;
+        }
+      }
+      // Validasi: reminderDate harus di masa depan
+      if (reminderDate && reminderDate <= new Date()) {
+        setSnackbarMessage('Waktu pengingat harus di masa depan!');
+        setSnackbarVisible(true);
+        return;
+      }
+      if (reminderDate && reminderDate > new Date()) {
+        try {
+          const notifId = await Notifications.scheduleNotificationAsync({
             content: {
               title: `Pengingat Tugas: ${taskData.title}`,
-              body: `Tugas akan berakhir dalam 5 jam`,
+              body: `Jangan lupa tugasmu!`,
               data: { taskId: response.data?.id || 'unknown' },
             },
-            trigger: {
-              date: triggerTime,
-            },
+            trigger: { date: reminderDate },
           });
+          // Simpan notifId ke AsyncStorage dengan key unik (misal: 'notif_task_{id}')
+          if (response.data?.id) {
+            await AsyncStorage.setItem(`notif_task_${response.data.id}`, notifId);
+          }
+        } catch (error) {
+          console.error('Error scheduling notification:', error);
         }
-      } catch (error) {
-        console.error('Error scheduling notification:', error);
       }
 
       setSnackbarMessage('Tugas berhasil disimpan!');
@@ -364,6 +401,51 @@ export default function AddTaskScreen({ navigation, route }) {
             </Text>
           </View>
         </View>
+        <View style={{ marginBottom: 16 }}>
+          <Text style={styles.label}>Ingatkan saya</Text>
+          <Button
+            mode="outlined"
+            onPress={() => setReminderDialogVisible(true)}
+            style={{ borderColor: '#3892c6' }}
+            textColor="#3892c6"
+          >
+            {reminderOptions.find(opt => opt.value === reminderType)?.label || 'Pilih reminder'}
+          </Button>
+          <Portal>
+            <Dialog
+              visible={reminderDialogVisible}
+              onDismiss={() => setReminderDialogVisible(false)}
+            >
+              <Dialog.Title>Pilih Waktu Pengingat</Dialog.Title>
+              <Dialog.Content>
+                <RadioButton.Group
+                  onValueChange={value => setReminderType(value)}
+                  value={reminderType}
+                >
+                  {reminderOptions.map(opt => (
+                    <View key={opt.value} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                      <RadioButton value={opt.value} />
+                      <Text>{opt.label}</Text>
+                    </View>
+                  ))}
+                </RadioButton.Group>
+                {reminderType === 'custom' && (
+                  <CustomDateTimePicker
+                    label="Pilih waktu pengingat"
+                    value={reminderCustom || new Date()}
+                    onChange={date => setReminderCustom(date)}
+                    mode="datetime"
+                  />
+                )}
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={() => setReminderDialogVisible(false)} textColor="#d32f2f">Batal</Button>
+                <Button onPress={() => setReminderDialogVisible(false)}>OK</Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
+          <Text style={styles.helperText}>Pilih kapan kamu ingin diingatkan untuk tugas ini.</Text>
+        </View>
 
         {/* Saklar untuk informasi tambahan */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
@@ -431,6 +513,8 @@ export default function AddTaskScreen({ navigation, route }) {
             )}
           </>
         )}
+
+
 
         <View style={styles.buttonContainer}>
           <Button 

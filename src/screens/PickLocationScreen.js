@@ -138,19 +138,19 @@ export default function PickLocationScreen({ navigation, route }) {
         };
 
         // Coba dapatkan alamat jika memungkinkan
-        try {
+      try {
           const geocode = await Location.reverseGeocodeAsync(formattedLocation);
-          if (geocode && geocode.length > 0) {
-            const g = geocode[0];
+        if (geocode && geocode.length > 0) {
+          const g = geocode[0];
             formattedLocation.name = [g.name, g.street, g.city, g.region].filter(Boolean).join(', ');
-          }
-        } catch (e) {
+        }
+      } catch (e) {
           console.warn('Gagal mendapatkan alamat:', e);
           formattedLocation.name = `${formattedLocation.latitude}, ${formattedLocation.longitude}`;
-        }
+      }
 
-        navigation.goBack();
-        if (route.params?.onLocationSelect) {
+      navigation.goBack();
+      if (route.params?.onLocationSelect) {
           route.params.onLocationSelect(formattedLocation);
         }
       } catch (error) {

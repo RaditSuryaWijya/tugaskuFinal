@@ -150,3 +150,9 @@
    - Feature prioritization
    - Technical debt reduction
    - Quality improvements 
+
+### [Progress] Notifikasi Reminder Tugas
+- Implementasi dropdown reminder dan custom date-time picker di AddTaskScreen: SELESAI
+- Penjadwalan notifikasi lokal dengan expo-notifications: SELESAI
+- Penghapusan notifikasi saat tugas dihapus: SELESAI
+- Siap untuk regression test dan feedback user 

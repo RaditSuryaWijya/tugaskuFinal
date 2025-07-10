@@ -6,6 +6,8 @@ import { id } from 'date-fns/locale';
 import { API_CONFIG } from '../services/config/api.config';
 import MapView, { Marker } from 'react-native-maps';
 import { taskService } from '../services';
+import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowWidth = Dimensions.get('window').width;
 const imageWidth = windowWidth - 64;
@@ -142,6 +144,32 @@ export default function DetailTaskScreen({ route, navigation }) {
       setSnackbarMessage(errorMessage);
       setSnackbarVisible(true);
     } finally {
+      setLoading(false);
+    }
+  };
+
+  // Tambahkan fungsi hapus tugas dan notifikasi
+  const handleDeleteTask = async () => {
+    try {
+      setLoading(true);
+      // Cancel notifikasi jika ada
+      if (taskData?.id) {
+        const notifId = await AsyncStorage.getItem(`notif_task_${taskData.id}`);
+        if (notifId) {
+          await Notifications.cancelScheduledNotificationAsync(notifId);
+          await AsyncStorage.removeItem(`notif_task_${taskData.id}`);
+        }
+      }
+      // Hapus tugas dari backend
+      await taskService.deleteTask(taskData.id);
+      setSnackbarMessage('Tugas berhasil dihapus!');
+      setSnackbarVisible(true);
+      setTimeout(() => {
+        navigation.goBack();
+      }, 1500);
+    } catch (error) {
+      setSnackbarMessage('Gagal menghapus tugas.');
+      setSnackbarVisible(true);
       setLoading(false);
     }
   };
@@ -377,6 +405,16 @@ export default function DetailTaskScreen({ route, navigation }) {
               contentStyle={styles.buttonContent}
             >
               {loading ? 'Memproses...' : 'Selesaikan Tugas'}
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={handleDeleteTask}
+              loading={loading}
+              disabled={loading}
+              style={{ marginTop: 12, borderColor: '#d32f2f' }}
+              textColor="#d32f2f"
+            >
+              Hapus Tugas
             </Button>
           </Surface>
         )}

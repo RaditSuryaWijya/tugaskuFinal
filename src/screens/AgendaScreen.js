@@ -455,7 +455,7 @@ export default function AgendaScreen({ navigation, route }) {
       if (t.tanggalMulai && typeof t.tanggalMulai === 'string') {
         const parsed = parseISO(t.tanggalMulai);
         if (!isNaN(parsed) && t.tanggalMulai.includes('T')) {
-          waktuMulai = format(parsed, 'HH:mm');
+          waktuMulai = format(parsed, 'yyyy-MM-dd HH:mm');
           startHour = getHours(parsed);
           startMinute = getMinutes(parsed);
         }
@@ -469,7 +469,7 @@ export default function AgendaScreen({ navigation, route }) {
       if (t.tanggalAkhir && typeof t.tanggalAkhir === 'string') {
         const parsed = parseISO(t.tanggalAkhir);
         if (!isNaN(parsed) && t.tanggalAkhir.includes('T')) {
-          waktuSelesai = format(parsed, 'HH:mm');
+          waktuSelesai = format(parsed, 'yyyy-MM-dd HH:mm');
           endHour = getHours(parsed);
           endMinute = getMinutes(parsed);
         }
