@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView, Image, Alert } from 'react-native';
-import { Surface, TextInput, Button, Text, Snackbar, SegmentedButtons } from 'react-native-paper';
+import { Surface, TextInput, Button, Text, Snackbar, SegmentedButtons, Switch } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import CustomDateTimePicker from '../components/pickers/DateTimePicker';
 import { taskService } from '../services';
@@ -38,6 +38,7 @@ export default function AddTaskScreen({ navigation, route }) {
   };
 
   const [taskData, setTaskData] = useState(initialFormState);
+  const [showExtra, setShowExtra] = useState(false);
 
   // Format waktu untuk tampilan
   const formatDisplayDateTime = (date) => {
@@ -364,59 +365,71 @@ export default function AddTaskScreen({ navigation, route }) {
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Informasi Tambahan</Text>
-        <Text style={styles.helperText}>Lokasi dan foto bersifat opsional</Text>
-
-        <Text style={styles.label}>Lokasi (Opsional)</Text>
-        <Button 
-          mode="outlined" 
-          onPress={handleAddLocation}
-          style={styles.locationButton}
-          textColor="#3892c6"
-          theme={{ colors: { outline: '#3892c6' } }}
-        >
-          {taskData.location ? 'Ubah Lokasi' : 'Tambah Lokasi'}
-        </Button>
-        {taskData.location && (
-          <View style={styles.mapPreview}>
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: taskData.location.latitude,
-                longitude: taskData.location.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-              scrollEnabled={false}
-            >
-              <Marker coordinate={taskData.location} />
-            </MapView>
-          </View>
-        )}
-
-        <Text style={styles.label}>Foto (Opsional)</Text>
-        <View style={styles.photoButtons}>
-          <Button 
-            mode="outlined" 
-            onPress={() => handleImagePicker('camera')}
-            style={[styles.photoButton, styles.cameraButton]}
-            textColor="#3892c6"
-            theme={{ colors: { outline: '#3892c6' } }}
-          >
-            Ambil Foto
-          </Button>
-          <Button 
-            mode="outlined" 
-            onPress={() => handleImagePicker('gallery')}
-            style={styles.photoButton}
-            textColor="#3892c6"
-            theme={{ colors: { outline: '#3892c6' } }}
-          >
-            Pilih dari Galeri
-          </Button>
+        {/* Saklar untuk informasi tambahan */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+          <Switch value={showExtra} onValueChange={setShowExtra} color="#3892c6" />
+          <Text style={{ marginLeft: 8, fontSize: 16, color: '#3892c6', fontWeight: 'bold' }}>
+            {showExtra ? 'Sembunyikan Informasi Tambahan' : 'Tambah Informasi Tambahan'}
+          </Text>
         </View>
-        {taskData.photo && (
-          <Image source={{ uri: taskData.photo }} style={styles.photoPreview} />
+        {/* Informasi Tambahan (hide/show) */}
+        {showExtra && (
+          <>
+            <Text style={styles.sectionTitle}>Informasi Tambahan</Text>
+            <Text style={styles.helperText}>Lokasi dan foto bersifat opsional</Text>
+
+            <Text style={styles.label}>Lokasi (Opsional)</Text>
+            <Button 
+              mode="outlined" 
+              onPress={handleAddLocation}
+              style={styles.locationButton}
+              textColor="#3892c6"
+              theme={{ colors: { outline: '#3892c6' } }}
+            >
+              {taskData.location ? 'Ubah Lokasi' : 'Tambah Lokasi'}
+            </Button>
+            {taskData.location && (
+              <View style={styles.mapPreview}>
+                <MapView
+                  style={styles.map}
+                  initialRegion={{
+                    latitude: taskData.location.latitude,
+                    longitude: taskData.location.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }}
+                  scrollEnabled={false}
+                >
+                  <Marker coordinate={taskData.location} />
+                </MapView>
+              </View>
+            )}
+
+            <Text style={styles.label}>Foto (Opsional)</Text>
+            <View style={styles.photoButtons}>
+              <Button 
+                mode="outlined" 
+                onPress={() => handleImagePicker('camera')}
+                style={[styles.photoButton, styles.cameraButton]}
+                textColor="#3892c6"
+                theme={{ colors: { outline: '#3892c6' } }}
+              >
+                Ambil Foto
+              </Button>
+              <Button 
+                mode="outlined" 
+                onPress={() => handleImagePicker('gallery')}
+                style={styles.photoButton}
+                textColor="#3892c6"
+                theme={{ colors: { outline: '#3892c6' } }}
+              >
+                Pilih dari Galeri
+              </Button>
+            </View>
+            {taskData.photo && (
+              <Image source={{ uri: taskData.photo }} style={styles.photoPreview} />
+            )}
+          </>
         )}
 
         <View style={styles.buttonContainer}>

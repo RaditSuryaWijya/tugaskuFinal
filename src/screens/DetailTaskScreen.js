@@ -235,15 +235,15 @@ export default function DetailTaskScreen({ route, navigation }) {
         const latitude = parseFloat(location.latitude);
         const longitude = parseFloat(location.longitude);
         if (!isNaN(latitude) && !isNaN(longitude)) {
-          return { latitude, longitude };
-        }
+      return { latitude, longitude };
+    }
       }
 
       console.error('Format lokasi tidak valid:', location);
       return null;
     } catch (error) {
       console.error('Error parsing coordinates:', error, 'Input:', location);
-      return null;
+    return null;
     }
   };
 

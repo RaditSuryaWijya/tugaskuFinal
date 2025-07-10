@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Card, Title, Text } from 'react-native-paper';
+import { Card, Title, Text, Chip } from 'react-native-paper';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
@@ -21,26 +21,19 @@ export default function OngoingTasksView({ tasks = [] }) {
 
   const renderTimelineItem = (task) => {
     const startTime = format(new Date(task.startTime), 'HH:mm', { locale: id });
-    
     return (
-      <View key={task.id} style={styles.timelineItem}>
-        <View style={styles.timeColumn}>
-          <Text style={styles.timeText}>{startTime}</Text>
-          <View style={styles.timelineLine} />
-        </View>
-        
-        <Card 
-          style={[
-            styles.taskCard,
-            { borderLeftColor: getStatusColor(task.status) }
-          ]}
-        >
-          <Card.Content>
+      <Card key={task.id} style={styles.taskCard} elevation={2}>
+        <Card.Content style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flex: 1 }}>
             <Title style={styles.taskTitle}>{task.title}</Title>
+            <Text style={styles.timeText}>{startTime}</Text>
             <Text style={styles.statusText}>{task.status ? task.status.charAt(0).toUpperCase() + task.status.slice(1) : '-'}</Text>
-          </Card.Content>
-        </Card>
-      </View>
+          </View>
+          <Chip style={[styles.chip, { backgroundColor: getStatusColor(task.status) }]} textStyle={{ color: '#fff', fontWeight: 'bold' }}>
+            {task.status ? task.status.charAt(0).toUpperCase() + task.status.slice(1) : '-'}
+          </Chip>
+        </Card.Content>
+      </Card>
     );
   };
 
@@ -54,38 +47,35 @@ export default function OngoingTasksView({ tasks = [] }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-  },
-  timelineItem: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  timeColumn: {
-    width: 60,
-    alignItems: 'center',
-  },
-  timeText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: '#e0e0e0',
+    padding: 8,
   },
   taskCard: {
-    flex: 1,
-    marginLeft: 16,
-    borderLeftWidth: 4,
+    marginVertical: 6,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   taskTitle: {
     fontSize: 16,
-    marginBottom: 4,
+    fontWeight: 'bold',
+    marginBottom: 2,
+    color: '#222',
+  },
+  timeText: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 2,
   },
   statusText: {
     fontSize: 12,
-    color: '#666',
-    textTransform: 'capitalize',
+    color: '#888',
+    marginBottom: 2,
+  },
+  chip: {
+    alignSelf: 'flex-end',
+    marginLeft: 8,
+    borderRadius: 8,
+    height: 28,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
 }); 

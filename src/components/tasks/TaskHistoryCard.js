@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Surface, Text } from 'react-native-paper';
+import { Surface, Text, Chip } from 'react-native-paper';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
@@ -35,13 +35,13 @@ export default function TaskHistoryCard({ task, onPress }) {
     <TouchableOpacity onPress={() => onPress(task)}>
       <Surface style={[styles.card, { backgroundColor }]} elevation={2}>
         <View style={styles.content}>
-          <Text style={styles.title}>{title}</Text>
-          <View style={styles.details}>
-            <Text style={styles.priority}>Prioritas: {prioritas}</Text>
-            <View style={styles.timeDateContainer}>
-              <Text style={styles.time}>{startTime} - {endTime}</Text>
-              <Text style={styles.date}>{formattedDate}</Text>
-            </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+            <Text style={[styles.title, { color: '#fff' }]}>{title}</Text>
+
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={[styles.time, { color: '#fff' }]}>{startTime} - {endTime}</Text>
+            <Text style={[styles.date, { color: '#fff' }]}>{formattedDate}</Text>
           </View>
         </View>
       </Surface>
@@ -55,39 +55,41 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 12,
     overflow: 'hidden',
+    backgroundColor: '#fff',
+    minHeight: 76,
   },
   content: {
     padding: 16,
+    minHeight: 56,
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
+    color: '#222',
+    marginRight: 8,
   },
-  details: {
+  chip: {
+    height: 24,
+    borderRadius: 8,
+    marginLeft: 4,
+    paddingHorizontal: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  priority: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.9,
-  },
-  timeDateContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-  },
-  date: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.9,
     marginTop: 2,
   },
+  date: {
+    fontSize: 13,
+    color: '#666',
+    marginLeft: 8,
+  },
   time: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.9,
+    fontSize: 13,
+    color: '#666',
   },
 }); 
