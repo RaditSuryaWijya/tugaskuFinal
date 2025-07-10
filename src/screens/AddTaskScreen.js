@@ -1,25 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, SafeAreaView, Image, Alert } from 'react-native';
 import { Surface, TextInput, Button, Text, Snackbar, SegmentedButtons } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import CustomDateTimePicker from '../components/pickers/DateTimePicker';
 import { taskService } from '../services';
+import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import MapView, { Marker } from 'react-native-maps';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 export default function AddTaskScreen({ navigation, route }) {
-  const [taskData, setTaskData] = useState({
+  const initialFormState = {
     title: '',
     description: '',
-    startTime: new Date(),
-    endTime: new Date(Date.now() + 3600000),
+    startTime: (() => {
+      // Waktu sekarang
+      const now = new Date();
+      // Bulatkan ke menit terdekat
+      now.setSeconds(0);
+      now.setMilliseconds(0);
+      return now;
+    })(),
+    endTime: (() => {
+      // 1 jam dari sekarang
+      const oneHourLater = new Date();
+      oneHourLater.setHours(oneHourLater.getHours() + 1);
+      // Bulatkan ke menit terdekat
+      oneHourLater.setSeconds(0);
+      oneHourLater.setMilliseconds(0);
+      return oneHourLater;
+    })(),
     status: 'ongoing',
     photo: null,
     location: null,
     priority: 'sedang',
-  });
+  };
 
+  const [taskData, setTaskData] = useState(initialFormState);
 
+  // Format waktu untuk tampilan
+  const formatDisplayDateTime = (date) => {
+    try {
+      return format(new Date(date), 'EEEE, dd MMMM yyyy HH:mm', { locale: id });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  };
+
+  const [userId, setUserId] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem('user');
+        const parsedUser = JSON.parse(storedUserId);
+        console.log(parsedUser);
+        if (storedUserId) {
+          setUserId(parsedUser.idUser);
+        } else {
+          setSnackbarMessage('User ID tidak ditemukan');
+          setSnackbarVisible(true);
+          navigation.goBack();
+        }
+      } catch (error) {
+        console.error('Error mengambil user ID:', error);
+        setSnackbarMessage('Gagal mengambil user ID');
+        setSnackbarVisible(true);
+        navigation.goBack();
+      }
+    };
+
+    getUserId();
+  }, []);
 
   useEffect(() => {
     if (route.params?.selectedLocation) {
@@ -42,22 +98,29 @@ export default function AddTaskScreen({ navigation, route }) {
     })();
   }, []);
 
-  const handleTakePhoto = async () => {
+  const handleImagePicker = async (type) => {
     try {
-      const result = await ImagePicker.launchCameraAsync({
+      let result;
+      const options = {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.7,
-      });
+      };
+
+      if (type === 'camera') {
+        result = await ImagePicker.launchCameraAsync(options);
+      } else {
+        result = await ImagePicker.launchImageLibraryAsync(options);
+      }
 
       if (!result.canceled) {
         setTaskData({ ...taskData, photo: result.assets[0].uri });
-        setSnackbarMessage('Foto berhasil diambil!');
+        setSnackbarMessage('Foto berhasil dipilih!');
         setSnackbarVisible(true);
       }
     } catch (error) {
-      console.error('Error taking photo:', error);
+      console.error('Error handling image:', error);
       setSnackbarMessage('Gagal mengambil foto. Silakan coba lagi.');
       setSnackbarVisible(true);
     }
@@ -67,9 +130,14 @@ export default function AddTaskScreen({ navigation, route }) {
     navigation.navigate('PickLocation', {
       previousLocation: taskData.location,
       onLocationSelect: (location) => {
+        console.log('Lokasi yang dipilih:', location);
         setTaskData(prev => ({
           ...prev,
-          location: location
+          location: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            name: location.name
+          }
         }));
         setSnackbarMessage('Lokasi berhasil ditambahkan!');
         setSnackbarVisible(true);
@@ -93,302 +161,390 @@ export default function AddTaskScreen({ navigation, route }) {
     }
   };
 
+  // Fungsi untuk mereset form ke kondisi awal
+  const resetForm = () => {
+    setTaskData({
+      ...initialFormState,
+      startTime: (() => {
+        const now = new Date();
+        now.setSeconds(0);
+        now.setMilliseconds(0);
+        return now;
+      })(),
+      endTime: (() => {
+        const oneHourLater = new Date();
+        oneHourLater.setHours(oneHourLater.getHours() + 1);
+        oneHourLater.setSeconds(0);
+        oneHourLater.setMilliseconds(0);
+        return oneHourLater;
+      })(),
+    });
+  };
+
   const handleSave = async () => {
     // Validasi field wajib
-    if (!taskData.title || !taskData.description || !taskData.startTime || !taskData.endTime || !taskData.priority || !taskData.location || !taskData.photo) {
-      setSnackbarMessage('Semua field wajib diisi!');
+    if (!taskData.title || !taskData.description || !taskData.startTime || !taskData.endTime || !taskData.priority) {
+      setSnackbarMessage('Judul, deskripsi, waktu, dan prioritas wajib diisi!');
       setSnackbarVisible(true);
       return;
     }
-    try {
-      setSnackbarMessage('Mengupload foto...');
+
+    // Validasi waktu
+    if (isNaN(new Date(taskData.startTime).getTime()) || isNaN(new Date(taskData.endTime).getTime())) {
+      setSnackbarMessage('Waktu mulai dan selesai harus dipilih!');
       setSnackbarVisible(true);
+      return;
+    }
 
-      // Upload foto terlebih dahulu
-      const uploadResponse = await taskService.uploadFile(taskData.photo);
-      console.log('Upload response di AddTaskScreen:', uploadResponse);
-      
+    if (new Date(taskData.endTime) <= new Date(taskData.startTime)) {
+      setSnackbarMessage('Waktu selesai harus setelah waktu mulai!');
+      setSnackbarVisible(true);
+      return;
+    }
 
+    if (!userId) {
+      setSnackbarMessage('User ID tidak tersedia');
+      setSnackbarVisible(true);
+      return;
+    }
 
-      // Ambil nama file dari response
-      const fileName = uploadResponse.fileName || // Jika response berupa {fileName: '...'}
-                      uploadResponse.data.file || // Jika response berupa {file: '...'}
-                      uploadResponse.data; // Jika response langsung berupa nama file
-      
-      if (!fileName) {
-        throw new Error('Nama file tidak ditemukan dalam response');
+    try {
+      let fileName = null;
+
+      // Upload foto jika ada
+      if (taskData.photo) {
+        setSnackbarMessage('Mengupload foto...');
+        setSnackbarVisible(true);
+
+        const uploadResponse = await taskService.uploadFile(taskData.photo);
+        console.log('Upload response di AddTaskScreen:', uploadResponse);
+        
+        fileName = uploadResponse.fileName || 
+                  uploadResponse.data.file || 
+                  uploadResponse.data;
+        
+        if (!fileName) {
+          throw new Error('Nama file tidak ditemukan dalam response');
+        }
       }
 
       setSnackbarMessage('Menyimpan tugas...');
+      
+      // Helper untuk format ISO DateTime
+      const pad = (n) => n.toString().padStart(2, '0');
+      const toISODateTimeString = (date) => {
+        const d = new Date(date);
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+      };
+
       // Mapping ke body API
       const body = {
         judulTugas: taskData.title,
         deskripsi: taskData.description,
         kategori: taskData.priority,
-        tanggalMulai: new Date(taskData.startTime).toISOString(),
-        tanggalAkhir: new Date(taskData.endTime).toISOString(),
+        tanggalMulai: toISODateTimeString(taskData.startTime),
+        tanggalAkhir: toISODateTimeString(taskData.endTime),
         statusTugas: 'pending',
-        lokasi: taskData.location?.name || `${taskData.location.latitude},${taskData.location.longitude}`,
-        foto: fileName, // Gunakan nama file saja
-        idUser: 2
+        lokasi: taskData.location ? 
+          `${taskData.location.latitude},${taskData.location.longitude}` : null,
+        foto: fileName,
+        idUser: userId
       };
 
-      console.log('Task body:', body);
-      await taskService.addTask(body);
-      setSnackbarMessage('Tugas berhasil ditambahkan!');
-      setSnackbarVisible(true);
-      setTimeout(() => {
-        navigation.navigate('Agenda', {
-          refresh: true,
-          timestamp: new Date().getTime()
-        });
-      }, 1200);
-    } catch (error) {
-      console.error('Detail error:', error);
-      let errorMessage = 'Gagal menambah tugas. ';
-      if (error.response) {
-        errorMessage += error.response.data?.message || 'Terjadi kesalahan pada server.';
-      } else if (error.message) {
-        errorMessage += error.message;
+      console.log('Data yang akan dikirim ke API:', body);
+      
+      const response = await taskService.addTask(body);
+      console.log('Response dari API:', response);
+
+      // Jadwalkan notifikasi 5 jam sebelum waktu selesai
+      try {
+        const endTime = new Date(taskData.endTime);
+        const triggerTime = new Date(endTime.getTime() - 5 * 60 * 60 * 1000); // 5 jam sebelum waktu selesai
+        
+        if (triggerTime > new Date()) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: `Pengingat Tugas: ${taskData.title}`,
+              body: `Tugas akan berakhir dalam 5 jam`,
+              data: { taskId: response.data?.id || 'unknown' },
+            },
+            trigger: {
+              date: triggerTime,
+            },
+          });
+        }
+      } catch (error) {
+        console.error('Error scheduling notification:', error);
       }
-      setSnackbarMessage(errorMessage);
+
+      setSnackbarMessage('Tugas berhasil disimpan!');
+      setSnackbarVisible(true);
+      
+      // Reset form setelah berhasil menyimpan
+      resetForm();
+      
+      // Tunggu snackbar selesai sebelum kembali
+      setTimeout(() => {
+        navigation.goBack();
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error saving task:', error);
+      setSnackbarMessage(error.message || 'Gagal menyimpan tugas. Silakan coba lagi.');
       setSnackbarVisible(true);
     }
   };
 
+  // Tambahkan fungsi untuk handle tombol batal
   const handleCancel = () => {
-    navigation.goBack();
+    navigation.navigate('Agenda', {
+      refresh: true,
+      timestamp: new Date().getTime()
+    });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Surface style={styles.surface}>
-        <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.title}>Tambah Tugas Baru</Text>
-          
-          <TextInput
-            label="Judul Tugas"
-            value={taskData.title}
-            onChangeText={(text) => setTaskData({ ...taskData, title: text })}
-            style={styles.input}
-            mode="outlined"
-            dense
-          />
-          
-          <TextInput
-            label="Deskripsi"
-            value={taskData.description}
-            onChangeText={(text) => setTaskData({ ...taskData, description: text })}
-            style={styles.input}
-            mode="outlined"
-            multiline
-            numberOfLines={3}
-            dense
-          />
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.container}>
+        <Text style={styles.sectionTitle}>Informasi Tugas</Text>
+        <TextInput
+          label="Judul Tugas *"
+          value={taskData.title}
+          onChangeText={(text) => setTaskData({ ...taskData, title: text })}
+          style={styles.input}
+          mode="outlined"
+        />
+        
+        <TextInput
+          label="Deskripsi *"
+          value={taskData.description}
+          onChangeText={(text) => setTaskData({ ...taskData, description: text })}
+          style={styles.input}
+          multiline
+          numberOfLines={4}
+          mode="outlined"
+        />
 
-          <View style={styles.timeContainer}>
+        <Text style={styles.label}>Prioritas *</Text>
+        <SegmentedButtons
+          value={taskData.priority}
+          onValueChange={value => setTaskData({ ...taskData, priority: value })}
+          buttons={[
+            { value: 'rendah', label: 'Rendah' },
+            { value: 'sedang', label: 'Sedang' },
+            { value: 'tinggi', label: 'Tinggi' }
+          ]}
+          style={styles.segmentedButton}
+        />
+
+        <Text style={styles.label}>Waktu *</Text>
+        <View style={styles.timeContainer}>
+          <View style={styles.timeWrapper}>
             <CustomDateTimePicker
               label="Waktu Mulai"
               value={taskData.startTime}
               onChange={handleStartTimeChange}
-              mode="datetime"
-              style={styles.timeInput}
+              style={styles.dateTimePicker}
             />
+            <Text style={styles.timeDisplay}>
+              {formatDisplayDateTime(taskData.startTime)}
+            </Text>
+          </View>
+
+          <View style={styles.timeWrapper}>
             <CustomDateTimePicker
-              label="Waktu Selesai" 
+              label="Waktu Selesai"
               value={taskData.endTime}
               onChange={handleEndTimeChange}
-              mode="datetime"
-              style={styles.timeInput}
+              style={styles.dateTimePicker}
             />
+            <Text style={styles.timeDisplay}>
+              {formatDisplayDateTime(taskData.endTime)}
+            </Text>
           </View>
+        </View>
 
-          <View style={styles.row}>
-            <Button
-              mode="outlined"
-              onPress={handleTakePhoto}
-              style={styles.iconButton}
-              icon="camera"
-              compact
-            >
-              {taskData.photo ? 'Ubah Foto' : 'Ambil Foto'}
-            </Button>
-            <Button
-              mode="outlined"
-              onPress={handleAddLocation}
-              style={styles.iconButton}
-              icon="map-marker"
-              compact
-            >
-              {taskData.location ? 'Ubah Lokasi' : 'Tambah Lokasi'}
-            </Button>
-          </View>
+        <Text style={styles.sectionTitle}>Informasi Tambahan</Text>
+        <Text style={styles.helperText}>Lokasi dan foto bersifat opsional</Text>
 
-          {taskData.photo && (
-            <Image
-              source={{ uri: taskData.photo }}
-              style={styles.preview}
-            />
-          )}
-
-          {taskData.location && (
-            <View style={styles.locationInfo}>
-              <Text style={styles.locationText}>
-                Latitude: {taskData.location.latitude.toFixed(6)}
-              </Text>
-              <Text style={styles.locationText}>
-                Longitude: {taskData.location.longitude.toFixed(6)}
-              </Text>
-            </View>
-          )}
-
-          <Text style={styles.label}>Prioritas</Text>
-          <SegmentedButtons
-            value={taskData.priority}
-            onValueChange={(value) => setTaskData({ ...taskData, priority: value })}
-            buttons={[
-              { value: 'rendah', label: 'Rendah' },
-              { value: 'sedang', label: 'Sedang' },
-              { value: 'tinggi', label: 'Tinggi' }
-            ]}
-            style={styles.priority}
-          />
-
-          <View style={styles.buttonGroup}>
-            <Button
-              mode="outlined"
-              onPress={handleCancel}
-              style={[styles.button, styles.cancelButton]}
-              compact
-            >
-              Batal
-            </Button>
-            <Button
-              mode="contained"
-              onPress={handleSave}
-              style={[styles.button, styles.saveButton]}
-              compact
-            >
-              Simpan
-            </Button>
-          </View>
-        </ScrollView>
-
-        <Snackbar
-          visible={snackbarVisible}
-          onDismiss={() => setSnackbarVisible(false)}
-          duration={2000}
-          style={styles.snackbar}
+        <Text style={styles.label}>Lokasi (Opsional)</Text>
+        <Button 
+          mode="outlined" 
+          onPress={handleAddLocation}
+          style={styles.locationButton}
+          textColor="#3892c6"
+          theme={{ colors: { outline: '#3892c6' } }}
         >
-          {snackbarMessage}
-        </Snackbar>
-      </Surface>
+          {taskData.location ? 'Ubah Lokasi' : 'Tambah Lokasi'}
+        </Button>
+        {taskData.location && (
+          <View style={styles.mapPreview}>
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: taskData.location.latitude,
+                longitude: taskData.location.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+              scrollEnabled={false}
+            >
+              <Marker coordinate={taskData.location} />
+            </MapView>
+          </View>
+        )}
+
+        <Text style={styles.label}>Foto (Opsional)</Text>
+        <View style={styles.photoButtons}>
+          <Button 
+            mode="outlined" 
+            onPress={() => handleImagePicker('camera')}
+            style={[styles.photoButton, styles.cameraButton]}
+            textColor="#3892c6"
+            theme={{ colors: { outline: '#3892c6' } }}
+          >
+            Ambil Foto
+          </Button>
+          <Button 
+            mode="outlined" 
+            onPress={() => handleImagePicker('gallery')}
+            style={styles.photoButton}
+            textColor="#3892c6"
+            theme={{ colors: { outline: '#3892c6' } }}
+          >
+            Pilih dari Galeri
+          </Button>
+        </View>
+        {taskData.photo && (
+          <Image source={{ uri: taskData.photo }} style={styles.photoPreview} />
+        )}
+
+        <View style={styles.buttonContainer}>
+          <Button 
+            mode="contained" 
+            onPress={handleSave}
+            style={styles.saveButton}
+            buttonColor="#3892c6"
+          >
+            Simpan
+          </Button>
+          <Button 
+            mode="outlined" 
+            onPress={() => {
+              resetForm();
+              setSnackbarMessage('Form berhasil dibersihkan!');
+              setSnackbarVisible(true);
+            }}
+            style={styles.cancelButton}
+            textColor="#3892c6"
+            theme={{ colors: { outline: '#3892c6' } }}
+          >
+            Clear
+          </Button>
+        </View>
+      </ScrollView>
+
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={2000}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    padding: 16,
   },
-  surface: {
-    flex: 1,
-    elevation: 0,
-    backgroundColor: '#fff',
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#3892c6',
-    marginBottom: 20,
-    alignSelf: 'center',
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#333',
   },
   input: {
-    marginBottom: 12,
+    marginBottom: 16,
     backgroundColor: '#fff',
-    borderRadius: 8,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#666',
+  },
+  helperText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 16,
+  },
+  segmentedButton: {
+    marginBottom: 16,
   },
   timeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 8,
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  timeInput: {
+  timeWrapper: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    marginHorizontal: 4,
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  dateTimePicker: {
+    marginBottom: 4,
+  },
+  timeDisplay: {
+    fontSize: 12,
+    color: '#666',
     marginBottom: 8,
-    gap: 8,
   },
-  iconButton: {
-    flex: 1,
-    marginHorizontal: 2,
-    borderRadius: 8,
-    borderColor: '#3892c6',
-  },
-  button: {
-    marginTop: 0,
-    marginBottom: 0,
-    borderRadius: 8,
-  },
-  buttonGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 24,
+  locationButton: {
     marginBottom: 8,
-    gap: 8,
-  },
-  cancelButton: {
-    flex: 1,
-    marginRight: 4,
-    borderColor: '#3892c6',
     backgroundColor: '#fff',
+  },
+  mapPreview: {
+    height: 200,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 16,
+    backgroundColor: '#fff',
+  },
+  map: {
+    flex: 1,
+  },
+  photoButtons: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  photoButton: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  cameraButton: {
+    marginLeft: 0,
+  },
+  photoPreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  buttonContainer: {
+    marginTop: 16,
+    marginBottom: 24,
   },
   saveButton: {
-    flex: 1,
-    marginLeft: 4,
-    backgroundColor: '#2654a1',
-  },
-  preview: {
-    width: '100%',
-    height: 140,
-    marginTop: 8,
-    marginBottom: 12,
-    borderRadius: 10,
-    backgroundColor: '#f5f5f5',
-  },
-  locationInfo: {
-    backgroundColor: '#f5f5f5',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 4,
     marginBottom: 8,
   },
-  locationText: {
-    fontSize: 13,
-    color: '#666',
-  },
-  label: {
-    fontSize: 15,
-    marginBottom: 6,
-    color: '#666',
-    fontWeight: '500',
-  },
-  priority: {
-    marginBottom: 12,
-  },
-  snackbar: {
-    borderRadius: 8,
-    margin: 12,
-  },
+  cancelButton: {
+    backgroundColor: '#fff',
+  }
 });

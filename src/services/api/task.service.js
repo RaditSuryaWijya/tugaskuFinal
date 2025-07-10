@@ -196,6 +196,15 @@ class TaskService {
       throw error;
     }
   }
+
+  async getTugasById(id) {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.TASK_GET_BY_ID(id));
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new TaskService(); 

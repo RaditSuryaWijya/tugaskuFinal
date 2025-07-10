@@ -1,190 +1,90 @@
-# Konteks Teknis TugasKu
+# Konteks Teknologi TugasKu
 
-## Teknologi & Dependencies
-```json
-{
-  "expo": "~53.0.12",
-  "react": "19.0.0",
-  "react-native": "0.79.4",
-  "react-native-paper": "^5.14.5",
-  "@react-navigation/native": "^7.1.13",
-  "@react-navigation/stack": "^7.1.13",
-  "@react-navigation/bottom-tabs": "^7.1.13",
-  "axios": "^1.6.7",
-  "@react-native-async-storage/async-storage": "^1.22.3",
-  "date-fns": "^4.1.0",
-  "expo-image-picker": "^14.7.1",
-  "react-native-maps": "^1.7.1",
-  "expo-location": "^16.1.0"
-}
-```
+## Stack Teknologi
 
-## Konfigurasi Aplikasi
-```json
-{
-  "expo": {
-    "android": {
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyDhSgQG0oUR_prg7a82Q_mAsEm5X5D-1nE"
-        }
-      }
-    },
-    "permissions": [
-      "ACCESS_FINE_LOCATION",
-      "CAMERA",
-      "MEDIA_LIBRARY"
-    ]
-  }
-}
-```
+### Core
+- React Native 0.79.4
+- Expo SDK 53.0.12
+- React 19.0.0
 
-## Struktur Proyek
-```
-src/
-├── components/
-│   ├── navigation/
-│   │   └── BottomNavigation.js
-│   ├── calendar/
-│   │   └── SwipeableCalendar.js
-│   └── tasks/
-│       └── OngoingTasksView.js
-├── context/
-│   └── AuthContext.js
-├── navigation/
-│   ├── RootNavigator.js
-│   └── AuthNavigator.js
-├── screens/
-│   ├── auth/
-│   │   ├── LoginScreen.js
-│   │   └── RegisterScreen.js
-│   ├── AgendaScreen.js
-│   ├── HistoryScreen.js
-│   ├── AddTaskScreen.js (Updated with camera feature)
-│   ├── NotificationScreen.js
-│   └── ProfileScreen.js
-├── services/
-│   ├── api/
-│   │   ├── auth.service.js
-│   │   ├── task.service.js
-│   │   └── notification.service.js
-│   └── config/
-│       └── api.config.js
-└── utils/
-    └── dateUtils.js
-```
+### UI/UX
+- React Native Paper v5.14.5
+- React Native Vector Icons v10.2.0
+- @expo-google-fonts/poppins
+- Expo Font
 
-## Pola Teknis
+### Navigasi
+- React Navigation v7
+  - @react-navigation/native
+  - @react-navigation/stack
+  - @react-navigation/bottom-tabs
 
-### 1. Navigasi
-- Stack navigation dengan modal presentation
-- Bottom tabs untuk main flow
-- Screen group untuk modal screens
-- Consistent header styling
-- State persistence antar screen
+### Penyimpanan & Data
+- @react-native-async-storage/async-storage
+- Axios v1.10.0
 
-### 2. State Management
-- React Context untuk global state
-- useState untuk local state
-- Callback pattern untuk screen communication
-- Immutable state updates
-- Proper cleanup
+### Fitur Lokasi & Maps
+- Expo Location
+- React Native Maps v1.20.1
+- Google Places Autocomplete
 
-### 3. Data Flow
-- Props untuk component communication
-- Callbacks untuk screen communication
-- Event handlers untuk user actions
-- State updates dengan feedback
-- Error handling dengan recovery
+### Media & Kamera
+- Expo Camera
+- Expo Image Picker
 
-### 4. UI/UX
-- Material design dengan react-native-paper
-- Consistent layout patterns
-- Loading states
-- Error feedback
-- Visual confirmations
+### Notifikasi
+- Expo Notifications
+- Expo Device
 
-### 5. Location Services
-- Google Maps integration
-- Permission handling
-- Current location detection
-- Location selection
-- Coordinate format standardization
-
-### 6. Error Handling
-- Try-catch blocks
-- Error boundaries
-- User feedback
-- Fallback states
-- Recovery options
-
-## Konvensi Teknis
-
-### 1. Code Style
-- ESLint configuration
-- Prettier formatting
-- TypeScript ready (planned)
-- Component documentation
-
-### 2. Error Handling
-- Global error boundary
-- Service-level try-catch
-- User feedback mechanisms
-- Development error logging
-
-### 3. Performance
-- Lazy loading
-- Image optimization
-- Memory management
-- Network caching
-
-### 4. Security
-- Token encryption
-- Secure storage
-- API security headers
-- Development mode safeguards
-- Permission handling
+### Utilitas
+- date-fns v4.1.0
+- i18next & react-i18next
 
 ## Development Setup
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+1. Node.js & npm
+2. Expo CLI
+3. Android Studio / Xcode
+4. VS Code dengan ekstensi React Native
 
-2. Environment setup:
-   - Copy .env.example to .env
-   - Configure API endpoints
-   - Set development mode
+## Konfigurasi Proyek
+- Expo managed workflow
+- Babel config standar
+- ESLint untuk linting
+- React Native Paper sebagai UI framework
 
-3. Run development server:
-   ```bash
-   npm start
-   ```
+## Arsitektur Aplikasi
+- Functional Components dengan React Hooks
+- Context API untuk state management
+- Layered architecture:
+  - Screens
+  - Components
+  - Services
+  - Hooks
+  - Utils
 
-4. Testing:
-   ```bash
-   npm test
-   ```
+## Best Practices
+1. Code Organization:
+   - Komponen reusable di /components
+   - Logic bisnis di /services
+   - Custom hooks di /hooks
+   - Utilitas di /utils
 
-## Media & Location Handling Guidelines
-1. Foto Tugas:
-   - Format: JPEG/PNG
-   - Kualitas: 0.7 (70%)
-   - Aspect ratio: 4:3
-   - Preview dalam aplikasi
-   - Edit sebelum upload
-   - Kompresi otomatis
+2. State Management:
+   - Local state dengan useState
+   - Global state dengan Context API
+   - Async Storage untuk persistensi
 
-2. Permission Handling:
-   - Request saat dibutuhkan
-   - Feedback jika ditolak
-   - Panduan ke settings
-   - Status persistence
+3. Performance:
+   - Lazy loading untuk komponen berat
+   - Memoization dengan useMemo & useCallback
+   - Optimasi re-render
 
-3. Location Services:
-   - Default zoom level: 15
-   - Marker draggable
-   - Koordinat format: {latitude, longitude}
-   - Akurasi GPS: high
-   - Timeout: 10000ms
-   - Cache lokasi terakhir 
+4. Error Handling:
+   - Try-catch untuk async operations
+   - Error boundaries untuk komponen
+   - Loading states & error states
+
+## Dependencies Management
+- Semua dependencies di-lock dengan package-lock.json
+- Expo SDK dependencies dikelola otomatis
+- Regular updates untuk security patches 

@@ -1,36 +1,26 @@
-# TugasKu - Aplikasi Manajemen Tugas
+# TugasKu - Aplikasi Manajemen Tugas Mobile
 
 ## Tujuan Proyek
-TugasKu adalah aplikasi manajemen tugas berbasis React Native yang dirancang untuk membantu pengguna mengelola dan melacak tugas-tugas mereka dengan lebih efektif.
+TugasKu adalah aplikasi manajemen tugas mobile yang dirancang untuk membantu pengguna mengelola dan melacak tugas-tugas mereka dengan lebih efektif. Aplikasi ini dikembangkan menggunakan React Native dan Expo.
 
 ## Fitur Utama
-1. Agenda Tugas dengan Timeline
-2. Riwayat Tugas
-3. Penambahan Tugas Baru
-4. Sistem Notifikasi
-5. Manajemen Profil Pengguna
-
-## Teknologi Utama
-- React Native dengan Expo
-- React Navigation
-- React Native Paper
-- Date-fns untuk manajemen waktu
+- Manajemen tugas dengan prioritas
+- Tampilan agenda dengan timeline
+- Notifikasi tugas
+- Lokasi tugas dengan integrasi maps
+- Dukungan multi-bahasa (i18n)
+- Penyimpanan lokal dengan AsyncStorage
+- Integrasi kamera dan galeri
+- Material Design dengan React Native Paper
 
 ## Target Pengguna
+- Pelajar dan mahasiswa
 - Profesional
-- Mahasiswa
-- Tim Proyek
-- Individu yang membutuhkan manajemen tugas
+- Siapa saja yang membutuhkan manajemen tugas mobile
 
-## Scope Proyek
-### Fase 1 (Current)
-- Implementasi UI dasar
-- Manajemen tugas lokal
-- Sistem prioritas tugas
-- Kalender dan timeline
-
-### Fase 2 (Planned)
-- Sinkronisasi data
-- Fitur kolaborasi
-- Statistik dan laporan
-- Integrasi dengan layanan pihak ketiga 
+## Tujuan Teknis
+- Performa optimal
+- UI/UX yang intuitif
+- Kode yang terstruktur dan maintainable
+- Dukungan iOS dan Android
+- Offline-first dengan sinkronisasi data 

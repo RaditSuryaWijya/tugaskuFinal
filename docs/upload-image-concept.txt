@@ -1,0 +1,168 @@
+KONSEP IMPLEMENTASI UPLOAD GAMBAR - TUGASKU APP
+
+1. STRUKTUR PENYIMPANAN GAMBAR
+============================
+- Server Side:
+  * Direktori: /uploads/images/
+  * Format nama file: {timestamp}_{username}_{originalFileName}
+  * Maksimum ukuran file: 5MB
+  * Format yang didukung: .jpg, .jpeg, .png
+
+2. ENDPOINT API
+=============
+Base URL: http://192.168.100.3:8081
+- Upload: POST /api/files/upload
+  Response: {
+    success: boolean,
+    data: {
+      fileName: string,
+      fileUrl: string
+    }
+  }
+- Get Image: GET /uploads/images/{filename}
+
+3. IMPLEMENTASI CLIENT SIDE
+=========================
+A. Komponen UI
+-------------
+- ImagePicker Component
+  * Tombol "Pilih Gambar"
+  * Preview gambar
+  * Loading indicator
+  * Error message display
+
+B. Integrasi dengan Form
+-----------------------
+- Pada TaskForm:
+  * Field foto opsional
+  * Preview gambar sebelum upload
+  * Validasi ukuran dan format
+  * Compress gambar jika > 1MB
+
+C. Proses Upload
+---------------
+1. Pilih gambar:
+   - Menggunakan expo-image-picker
+   - Opsi: kamera atau galeri
+   - Set kualitas kompresi (0.7)
+
+2. Validasi:
+   - Cek ukuran maksimal (5MB)
+   - Validasi format (.jpg, .jpeg, .png)
+   - Cek dimensi gambar
+
+3. Proses Upload:
+   - Convert ke FormData
+   - Kirim ke API menggunakan axios
+   - Handle loading state
+   - Error handling
+
+4. KODE IMPLEMENTASI
+==================
+A. Image Picker Hook
+-------------------
+```javascript
+const useImagePicker = () => {
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+    });
+    
+    if (!result.canceled) {
+      return result.assets[0].uri;
+    }
+    return null;
+  };
+  
+  return { pickImage };
+};
+```
+
+B. Upload Service
+----------------
+```javascript
+const uploadImage = async (imageUri) => {
+  const formData = new FormData();
+  const fileName = imageUri.split('/').pop();
+  
+  formData.append('photo', {
+    uri: imageUri,
+    name: fileName,
+    type: 'image/jpeg'
+  });
+  
+  return await axios.post('/api/files/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};
+```
+
+5. KEAMANAN
+==========
+- Validasi tipe file di server
+- Sanitasi nama file
+- Limit ukuran file
+- Autentikasi user untuk upload
+- Scan virus/malware
+- Hapus EXIF data
+
+6. OPTIMISASI
+============
+- Kompresi gambar client-side
+- Caching gambar
+- Lazy loading
+- Placeholder images
+- Error boundary handling
+
+7. TESTING
+=========
+A. Unit Tests:
+- Validasi format file
+- Validasi ukuran
+- Handling error cases
+
+B. Integration Tests:
+- Upload flow
+- Image preview
+- Form submission
+
+C. E2E Tests:
+- Full upload process
+- Error scenarios
+- Network conditions
+
+8. ERROR HANDLING
+===============
+A. Client-side Errors:
+- File terlalu besar
+- Format tidak didukung
+- Gagal kompresi
+- Network error
+
+B. Server-side Errors:
+- Storage penuh
+- File corrupt
+- Database error
+- Authentication error
+
+9. USER EXPERIENCE
+================
+- Loading indicators
+- Progress bar untuk upload
+- Preview gambar
+- Feedback kesalahan
+- Animasi smooth
+- Responsive design
+
+10. MAINTENANCE
+=============
+- Log semua upload
+- Monitoring storage
+- Cleanup file temporary
+- Backup strategy
+- Version control assets 

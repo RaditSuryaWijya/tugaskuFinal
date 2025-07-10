@@ -4,9 +4,11 @@ import { Surface, Text, Avatar, Button, Divider, Portal, Dialog } from 'react-na
 import { useAuth } from '../context/AuthContext';
 import { IS_DEVELOPMENT } from '../config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileScreen() {
   const { logout } = useAuth();
+  const navigation = useNavigation();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
@@ -15,8 +17,16 @@ export default function ProfileScreen() {
     const fetchUser = async () => {
       try {
         const userData = await AsyncStorage.getItem('user');
+        console.log(userData);
         if (userData) {
-          setUser(JSON.parse(userData));
+          const parsedUser = JSON.parse(userData);
+          console.log(parsedUser);
+          // Format tanggal lahir jika ada
+          if (parsedUser.tanggalLahir) {
+            const date = new Date(parsedUser.tanggalLahir);
+            parsedUser.tanggalLahir = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+          }
+          setUser(parsedUser);
         }
       } catch (e) {
         setUser(null);
@@ -67,7 +77,7 @@ export default function ProfileScreen() {
           <View style={styles.header}>
             <Avatar.Icon size={80} icon="account" style={styles.avatar} />
             <Text style={styles.username}>{user ? user.email : 'Azizah Salsa'}</Text>
-            {IS_DEVELOPMENT && <Text style={styles.devBadge}>Mode Pengembangan</Text>}
+            {IS_DEVELOPMENT && <Text style={styles.devBadge}>Modeeee Pengembangan</Text>}
           </View>
 
           <Divider style={styles.divider} />
@@ -75,7 +85,7 @@ export default function ProfileScreen() {
           <View style={styles.content}>
             {renderProfileItem(
               <Avatar.Icon size={40} icon="phone" style={styles.fieldIcon} />,
-              'No Telepon',
+              'No Teleponnn',
               profileData.noTelepon
             )}
             {renderProfileItem(
@@ -93,11 +103,15 @@ export default function ProfileScreen() {
               'Tanggal Lahir',
               profileData.tanggalLahir
             )}
-            {renderProfileItem(
-              <Avatar.Icon size={40} icon="lock" style={styles.fieldIcon} />,
-              'Kata Sandi',
-              profileData.kataSandi
-            )}
+
+            <Button
+              mode="contained"
+              icon="cog"
+              onPress={() => navigation.navigate('Settings')}
+              style={styles.settingsButton}
+            >
+              Pengaturan
+            </Button>
 
             <Button
               mode="contained"
@@ -198,9 +212,14 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '500',
   },
+  settingsButton: {
+    backgroundColor: '#3892c6',
+    marginTop: 24,
+    marginBottom: 12,
+    borderRadius: 8,
+  },
   logoutButton: {
     backgroundColor: '#B00020',
-    marginTop: 24,
     borderRadius: 8,
   },
 }); 

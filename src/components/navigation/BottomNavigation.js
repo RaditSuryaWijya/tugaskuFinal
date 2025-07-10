@@ -8,7 +8,6 @@ import HistoryScreen from '../../screens/HistoryScreen';
 import AddTaskScreen from '../../screens/AddTaskScreen';
 import NotificationScreen from '../../screens/NotificationScreen';
 import ProfileScreen from '../../screens/ProfileScreen';
-import SettingsScreen from '../../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
@@ -96,6 +95,7 @@ const TabButton = ({ label, isFocused, onPress, iconName }) => {
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   return (
     <View style={styles.tabBarContainer}>
+      
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label = route.name;
@@ -157,7 +157,8 @@ export default function BottomNavigation() {
         headerShown: false,
         headerShadowVisible: false,
         headerStyle: {
-          height: 50
+          height: 50,
+          backgroundColor: '#E8F4FD'
         }
       }}
     >
@@ -171,16 +172,9 @@ export default function BottomNavigation() {
           </View>
         ),
         headerStyle: {
-          height: 75
-        },
-        headerRight: () => (
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('Settings')}
-            style={{marginRight: 16}}
-          >
-            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
-          </TouchableOpacity>
-        )
+          height: 85,
+          backgroundColor: '#E8F4FD'
+        }
       })} />
       <Tab.Screen name="Riwayat" component={HistoryScreen} options={({ navigation }) => ({
         headerShown: true,
@@ -192,16 +186,9 @@ export default function BottomNavigation() {
           </View>
         ),
         headerStyle: {
-          height: 75
-        },
-        headerRight: () => (
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('Settings')}
-            style={{marginRight: 16}}
-          >
-            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
-          </TouchableOpacity>
-        )
+          height: 85,
+          backgroundColor: '#E8F4FD'
+        }
       })} />
       <Tab.Screen name="Tambah" component={AddTaskScreen} options={({ navigation }) => ({
         headerShown: true,
@@ -213,16 +200,9 @@ export default function BottomNavigation() {
           </View>
         ),
         headerStyle: {
-          height: 75
-        },
-        headerRight: () => (
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('Settings')}
-            style={{marginRight: 16}}
-          >
-            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
-          </TouchableOpacity>
-        )
+          height: 85,
+          backgroundColor: '#E8F4FD'
+        }
       })} />
       <Tab.Screen name="Notifikasi" component={NotificationScreen} options={({ navigation }) => ({
         headerShown: true,
@@ -234,45 +214,24 @@ export default function BottomNavigation() {
           </View>
         ),
         headerStyle: {
-          height: 75
-        },
-        headerRight: () => (
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('Settings')}
-            style={{marginRight: 16}}
-          >
-            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
-          </TouchableOpacity>
-        )
+          height: 85,
+          backgroundColor: '#E8F4FD'
+        }
       })} />
       <Tab.Screen name="Profil" component={ProfileScreen} options={({ navigation }) => ({
-        headerShown: true,
+        headerShown: false,
         headerShadowVisible: false,
-        headerTitle: "",
+        headerTitle: () => (
+          <View style={styles.headerContainer}>
+            <Logo />
+            <Text style={styles.headerTitle}>TugasKu</Text>
+          </View>
+        ),
         headerStyle: {
-          height: 35
-        },
-        headerRight: () => (
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('Settings')}
-            style={{marginRight: 16}}
-          >
-            <MaterialCommunityIcons name="cog" size={24} color="#3892c6" />
-          </TouchableOpacity>
-        )
+          height: 85,
+          backgroundColor: '#E8F4FD'
+        }
       })} />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{
-          tabBarButton: () => null,
-          headerShown: true,
-          headerTitle: '',
-          headerStyle: {
-            height: 35
-          },
-        }}
-      />
     </Tab.Navigator>
   );
 }
@@ -280,7 +239,7 @@ export default function BottomNavigation() {
 const styles = StyleSheet.create({
   tabBarContainer: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    backgroundColor: 'white',
     height: 80,
     paddingHorizontal: 10,
     justifyContent: 'space-around',
@@ -323,6 +282,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    
   },
   headerTitle: {
     fontSize: 20,

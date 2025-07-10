@@ -5,6 +5,7 @@ import BottomNavigation from '../components/navigation/BottomNavigation';
 import AddTaskScreen from '../screens/AddTaskScreen';
 import PickLocationScreen from '../screens/PickLocationScreen';
 import DetailTaskScreen from '../screens/DetailTaskScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createStackNavigator();
 
@@ -44,6 +45,17 @@ export default function RootNavigator({ isAuthenticated }) {
           component={PickLocationScreen}
           options={{
             title: 'Pilih Lokasi',
+          }}
+        />
+        <Stack.Screen 
+          name="Settings" 
+          component={SettingsScreen}
+          options={{
+            title: 'Pengaturan',
+            headerStyle: {
+              backgroundColor: '#E8F4FD',
+            },
+            headerTintColor: '#000',
           }}
         />
       </Stack.Group>

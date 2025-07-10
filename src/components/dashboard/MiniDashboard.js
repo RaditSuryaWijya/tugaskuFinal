@@ -3,10 +3,9 @@ import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import TaskSummaryCard from './TaskSummaryCard';
 
-export default function MiniDashboard({ completedTasks, pendingTasks }) {
+export default function MiniDashboard({ completedTasks, pendingTasks, children }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>History Minggu Ini</Text>
       <View style={styles.cardContainer}>
         <TaskSummaryCard
           title="Tugas Selesai"
@@ -21,6 +20,7 @@ export default function MiniDashboard({ completedTasks, pendingTasks }) {
           color="#FF5722"
         />
       </View>
+      {children}
     </View>
   );
 }

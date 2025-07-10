@@ -54,61 +54,6 @@ export default function SettingsScreen({ navigation }) {
             </RadioButton.Group>
           </List.Section>
 
-          <Divider />
-
-          <List.Section>
-            <List.Subheader>Tampilan</List.Subheader>
-            <List.Item
-              title="Mode Gelap"
-              left={() => <List.Icon icon="theme-light-dark" />}
-              right={() => (
-                <Switch
-                  value={settings.darkMode}
-                  onValueChange={() => handleSettingToggle('darkMode')}
-                  color="#3892c6"
-                />
-              )}
-            />
-          </List.Section>
-
-          <Divider />
-
-          <List.Section>
-            <List.Subheader>Notifikasi</List.Subheader>
-            <List.Item
-              title="Aktifkan Notifikasi"
-              left={() => <List.Icon icon="bell" />}
-              right={() => (
-                <Switch
-                  value={settings.notifications}
-                  onValueChange={() => handleSettingToggle('notifications')}
-                  color="#3892c6"
-                />
-              )}
-            />
-            <List.Item
-              title="Suara"
-              left={() => <List.Icon icon="volume-high" />}
-              right={() => (
-                <Switch
-                  value={settings.soundEnabled}
-                  onValueChange={() => handleSettingToggle('soundEnabled')}
-                  color="#3892c6"
-                />
-              )}
-            />
-            <List.Item
-              title="Getaran"
-              left={() => <List.Icon icon="vibrate" />}
-              right={() => (
-                <Switch
-                  value={settings.vibrationEnabled}
-                  onValueChange={() => handleSettingToggle('vibrationEnabled')}
-                  color="#3892c6"
-                />
-              )}
-            />
-          </List.Section>
 
           <List.Section>
             <List.Subheader>Tentang</List.Subheader>

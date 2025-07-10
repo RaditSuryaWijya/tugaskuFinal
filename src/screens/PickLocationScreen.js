@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Dimensions } from 'react-native';
-import { Button, Surface, Text, ActivityIndicator } from 'react-native-paper';
+import { StyleSheet, View, Dimensions, Alert } from 'react-native';
+import { Button, Surface, Text, ActivityIndicator, IconButton } from 'react-native-paper';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 
@@ -85,14 +85,80 @@ export default function PickLocationScreen({ navigation, route }) {
     setSelectedLocation({ latitude, longitude });
   };
 
-  const handleSaveLocation = () => {
+  const handleMapPress = (e) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    setSelectedLocation({ latitude, longitude });
+  };
+
+  const handleMyLocation = async () => {
+    try {
+      setLoading(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Error', 'Izin akses lokasi diperlukan untuk fitur ini');
+        setLoading(false);
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const newRegion = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+      };
+
+      setRegion(newRegion);
+      setSelectedLocation(location.coords);
+    } catch (error) {
+      Alert.alert('Error', 'Gagal mendapatkan lokasi saat ini');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveLocation = async () => {
     if (selectedLocation) {
-      navigation.goBack();
-      if (route.params?.onLocationSelect) {
-        route.params.onLocationSelect({
-          latitude: selectedLocation.latitude,
-          longitude: selectedLocation.longitude
-        });
+      try {
+        // Pastikan koordinat adalah angka
+        const latitude = parseFloat(selectedLocation.latitude);
+        const longitude = parseFloat(selectedLocation.longitude);
+
+        if (isNaN(latitude) || isNaN(longitude)) {
+          throw new Error('Koordinat tidak valid');
+        }
+
+        // Format koordinat dengan 6 angka desimal
+        const formattedLocation = {
+          latitude: parseFloat(latitude.toFixed(6)),
+          longitude: parseFloat(longitude.toFixed(6))
+        };
+
+        // Coba dapatkan alamat jika memungkinkan
+        try {
+          const geocode = await Location.reverseGeocodeAsync(formattedLocation);
+          if (geocode && geocode.length > 0) {
+            const g = geocode[0];
+            formattedLocation.name = [g.name, g.street, g.city, g.region].filter(Boolean).join(', ');
+          }
+        } catch (e) {
+          console.warn('Gagal mendapatkan alamat:', e);
+          formattedLocation.name = `${formattedLocation.latitude}, ${formattedLocation.longitude}`;
+        }
+
+        navigation.goBack();
+        if (route.params?.onLocationSelect) {
+          route.params.onLocationSelect(formattedLocation);
+        }
+      } catch (error) {
+        Alert.alert(
+          'Error',
+          'Gagal menyimpan lokasi. Pastikan koordinat yang dipilih valid.',
+          [{ text: 'OK' }]
+        );
       }
     }
   };
@@ -127,11 +193,18 @@ export default function PickLocationScreen({ navigation, route }) {
 
   return (
     <Surface style={styles.container}>
+      <View style={styles.instructionContainer}>
+        <Text style={styles.instructionText}>
+          Tap pada peta untuk memilih lokasi atau geser pin yang ada
+        </Text>
+      </View>
+
       <MapView
         provider={PROVIDER_GOOGLE}
         style={styles.map}
         region={region}
         onRegionChangeComplete={handleRegionChange}
+        onPress={handleMapPress}
         showsUserLocation
         showsMyLocationButton
       >
@@ -148,12 +221,24 @@ export default function PickLocationScreen({ navigation, route }) {
           />
         )}
       </MapView>
+
+      <View style={styles.myLocationButton}>
+        <IconButton
+          icon="crosshairs-gps"
+          size={24}
+          onPress={handleMyLocation}
+          mode="contained"
+          containerColor="#fff"
+          iconColor="#3892c6"
+        />
+      </View>
       
       <View style={styles.buttonContainer}>
         <Button
           mode="outlined"
           onPress={handleCancel}
           style={[styles.button, styles.cancelButton]}
+          textColor="#3892c6"
         >
           Batal
         </Button>
@@ -174,9 +259,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  instructionContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    right: 20,
+    zIndex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 8,
+    padding: 12,
+  },
+  instructionText: {
+    textAlign: 'center',
+    color: '#666',
+    fontSize: 14,
+  },
   map: {
     width: '100%',
     height: '100%',
+  },
+  myLocationButton: {
+    position: 'absolute',
+    top: 100,
+    right: 20,
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   buttonContainer: {
     position: 'absolute',

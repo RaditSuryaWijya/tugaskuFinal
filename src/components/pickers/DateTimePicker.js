@@ -80,7 +80,6 @@ export default function CustomDateTimePicker({
           is24Hour={true}
           display="default"
           onChange={handleChange}
-          minimumDate={mode === 'date' || (mode === 'datetime' && currentMode === 'date') ? new Date() : undefined}
         />
       )}
     </View>

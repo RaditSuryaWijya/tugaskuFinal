@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 import RootNavigator from './src/navigation/RootNavigator';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { Text } from 'react-native';
+import { Text, Platform, Button, View } from 'react-native';
+import * as Notifications from 'expo-notifications';
 
 const theme = {
   ...DefaultTheme,
@@ -58,7 +59,37 @@ function AppContent() {
   return <RootNavigator isAuthenticated={isAuthenticated} />;
 }
 
-function App() {
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+export default function App() {
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
+  useEffect(() => {
+    registerForPushNotificationsAsync();
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      // Notifikasi diterima saat aplikasi foreground
+      console.log('Notifikasi diterima:', notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      // User klik notifikasi
+      console.log('User klik notifikasi:', response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
@@ -89,4 +120,29 @@ function App() {
   );
 }
 
-export default App;
+// Fungsi untuk mendapatkan token push notification
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  if (finalStatus !== 'granted') {
+    alert('Gagal mendapatkan izin notifikasi!');
+    return;
+  }
+  token = (await Notifications.getExpoPushTokenAsync()).data;
+  console.log('Expo Push Token:', token);
+  // Kirim token ke backend jika perlu
+  return token;
+}
