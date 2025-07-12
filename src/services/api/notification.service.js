@@ -19,11 +19,37 @@ class NotificationService {
     }
   }
 
+  // Mendapatkan notifikasi yang belum dibaca berdasarkan ID user
+  async getUnreadNotificationsByUserId(userId) {
+    try {
+      const response = await axiosInstance.get(
+        ENDPOINTS.NOTIFICATIONS + `/user/${userId}/unread`
+      );
+      // Response diharapkan dalam format { result, message, data }
+      if (response && response.data) {
+        return {
+          result: response.data.result,
+          message: response.data.message,
+          data: Array.isArray(response.data.data) ? response.data.data : [],
+        };
+      }
+      return { result: 200, message: 'Berhasil', data: [] };
+    } catch (error) {
+      console.error('Error in getUnreadNotificationsByUserId:', error);
+      return {
+        result: error.response?.status || 500,
+        message: 'Gagal mengambil notifikasi belum dibaca',
+        data: [],
+      };
+    }
+  }
+
   async markAsRead(notificationId) {
     try {
-      const response = await axiosInstance.put(ENDPOINTS.NOTIFICATION_UPDATE_STATUS(notificationId), {
-        statusBaca: true
-      });
+      // Kirim status=1 di query string, body kosong
+      const response = await axiosInstance.put(
+        ENDPOINTS.NOTIFICATION_UPDATE_STATUS(notificationId) + '?status=1'
+      );
       return response;
     } catch (error) {
       console.error('Error in markAsRead:', error);

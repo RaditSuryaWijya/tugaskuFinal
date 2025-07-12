@@ -2,22 +2,32 @@ import { format, isToday, isTomorrow, isYesterday, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 export const formatDate = (date) => {
-  const parsedDate = typeof date === 'string' ? parseISO(date) : date;
-  
-  if (isToday(parsedDate)) {
-    return 'Hari ini';
-  } else if (isTomorrow(parsedDate)) {
-    return 'Besok';
-  } else if (isYesterday(parsedDate)) {
-    return 'Kemarin';
+  try {
+    if (!date) return '-';
+    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+    if (!parsedDate || isNaN(parsedDate.getTime())) return '-';
+    if (isToday(parsedDate)) {
+      return 'Hari ini';
+    } else if (isTomorrow(parsedDate)) {
+      return 'Besok';
+    } else if (isYesterday(parsedDate)) {
+      return 'Kemarin';
+    }
+    return format(parsedDate, 'dd MMMM yyyy', { locale: id });
+  } catch {
+    return '-';
   }
-  
-  return format(parsedDate, 'dd MMMM yyyy', { locale: id });
 };
 
 export const formatTime = (date) => {
-  const parsedDate = typeof date === 'string' ? parseISO(date) : date;
-  return format(parsedDate, 'HH:mm', { locale: id });
+  try {
+    if (!date) return '-';
+    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+    if (!parsedDate || isNaN(parsedDate.getTime())) return '-';
+    return format(parsedDate, 'HH:mm', { locale: id });
+  } catch {
+    return '-';
+  }
 };
 
 export const getDummyTasks = () => {

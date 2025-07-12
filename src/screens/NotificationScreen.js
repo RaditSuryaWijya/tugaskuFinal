@@ -27,7 +27,8 @@ export default function NotificationScreen() {
         throw new Error(t('notification.user_data_not_found'));
       }
 
-      const response = await NotificationService.getAllNotificationsByUsername(user.idUser);
+      const response = await NotificationService.getUnreadNotificationsByUserId (user.idUser);
+      console.log(response);
       if (response?.data && Array.isArray(response.data)) {
         setNotifications(response.data);
       } else {
@@ -103,10 +104,31 @@ export default function NotificationScreen() {
                   right={() => (
                     <View style={styles.timeContainer}>
                       <List.Subheader style={styles.time}>
-                        {formatTime(notification.tanggalDibuat)}
+                        {/* Pastikan waktu valid dan fallback ke '-' jika tidak valid */}
+                        {(() => {
+                          const waktu = notification.waktuDibuat;
+                          try {
+                            if (!waktu) return '-';
+                            const parsed = typeof waktu === 'string' ? new Date(waktu) : waktu;
+                            if (!parsed || isNaN(parsed.getTime())) return '-';
+                            return formatTime(waktu);
+                          } catch {
+                            return '-';
+                          }
+                        })()}
                       </List.Subheader>
                       <List.Subheader style={styles.date}>
-                        {formatDate(notification.tanggalDibuat)}
+                        {(() => {
+                          const waktu = notification.waktuDibuat;
+                          try {
+                            if (!waktu) return '-';
+                            const parsed = typeof waktu === 'string' ? new Date(waktu) : waktu;
+                            if (!parsed || isNaN(parsed.getTime())) return '-';
+                            return formatDate(waktu);
+                          } catch {
+                            return '-';
+                          }
+                        })()}
                       </List.Subheader>
                     </View>
                   )}
