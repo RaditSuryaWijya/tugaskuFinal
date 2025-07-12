@@ -78,10 +78,7 @@ export default function RegisterScreen({ navigation }) {
       setSnackbarMessage(t('register.success'));
       setSnackbarVisible(true);
       setTimeout(() => {
-        navigation.navigate('Agenda', {
-          refresh: true,
-          timestamp: new Date().getTime(),
-        });
+        navigation.goBack(); // Kembali ke LoginScreen
       }, 1200);
     } catch (error) {
       console.error('Detail error:', error);
