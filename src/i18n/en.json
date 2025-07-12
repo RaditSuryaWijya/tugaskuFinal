@@ -40,6 +40,7 @@
   "location": "Location",
   "complete_task": "Complete Task",
   "delete_task": "Delete Task",
+  "delete_task_confirm_text": "Are you sure you want to delete this task? This action cannot be undone.",
   "loading_task_details": "Loading task details...",
   "task_not_found": "Task not found.",
   "task_completed_successfully": "Task completed successfully!",

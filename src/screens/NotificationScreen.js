@@ -5,6 +5,7 @@ import { formatDate, formatTime } from '../utils/dateUtils';
 import NotificationService from '../services/api/notification.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
+import * as Notifications from 'expo-notifications';
 
 export default function NotificationScreen() {
   const { t } = useTranslation();
@@ -15,6 +16,32 @@ export default function NotificationScreen() {
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  // Tambahkan efek untuk push notifikasi lokal untuk setiap notifikasi yang belum dibaca
+  useEffect(() => {
+    const pushLocalNotifications = async () => {
+      for (const notif of notifications) {
+        if (!notif.statusBaca) {
+          // Cek apakah sudah pernah dipush (gunakan AsyncStorage dengan key unik)
+          const pushed = await AsyncStorage.getItem(`notif_pushed_${notif.idNotifikasi}`);
+          if (!pushed) {
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: notif.judul || 'Notifikasi',
+                body: notif.pesan || '',
+                data: { id: notif.idNotifikasi },
+              },
+              trigger: null, // Segera tampilkan
+            });
+            await AsyncStorage.setItem(`notif_pushed_${notif.idNotifikasi}`, '1');
+          }
+        }
+      }
+    };
+    if (notifications.length > 0) {
+      pushLocalNotifications();
+    }
+  }, [notifications]);
 
   const fetchNotifications = async () => {
     try {

@@ -19,7 +19,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.tugasku.app",
       "config": {
-        "googleMapsApiKey": "AIzaSyDhSgQG0oUR_prg7a82Q_mAsEm5X5D-1nE"
+        "googleMapsApiKey": "AIzaSyCv4p2YPoDkHW_mF_3Wr_GtGVcVKazxxBc"
       },
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "TugasKu memerlukan akses lokasi untuk menambahkan lokasi pada tugas Anda."
@@ -33,10 +33,11 @@
       "package": "com.tugasku.app",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyDhSgQG0oUR_prg7a82Q_mAsEm5X5D-1nE"
+          "apiKey": "AIzaSyCv4p2YPoDkHW_mF_3Wr_GtGVcVKazxxBc"
         }
       },
       "permissions": [
+        "android.permission.INTERNET",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ]

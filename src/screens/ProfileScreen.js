@@ -6,6 +6,7 @@ import { IS_DEVELOPMENT } from '../config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { API_CONFIG } from '../services/config/api.config';
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
@@ -61,12 +62,10 @@ export default function ProfileScreen() {
     idUser: '-',
   };
 
-  const BASE_IMAGE_URL = 'http://192.168.100.3:8081/uploads/images';
-
   const getProfilePhotoUrl = (fotoProfil) => {
     if (!fotoProfil) return null;
     if (fotoProfil.startsWith('http')) return fotoProfil;
-    return `${BASE_IMAGE_URL}/${fotoProfil}`;
+    return `${API_CONFIG.IMAGE_URL}/${fotoProfil}`;
   };
 
   const renderProfileItem = (icon, label, value) => (

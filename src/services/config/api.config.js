@@ -1,12 +1,12 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'http://192.168.100.3:8080', // Ganti dengan base URL API Anda
+  BASE_URL: 'https://dfc3b59db4d9.ngrok-free.app', // Ganti dengan base URL ngrok Anda
   TIMEOUT: 30000, // 30 detik
   HEADERS: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  IMAGE_URL: 'http://192.168.100.3:8080/uploads/images' // Base URL untuk gambar
+  IMAGE_URL: 'https://dfc3b59db4d9.ngrok-free.app/uploads/images' // Base URL untuk gambar
 };
 
 // API Endpoints

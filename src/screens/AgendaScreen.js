@@ -507,7 +507,9 @@ export default function AgendaScreen({ navigation, route }) {
           dateStr
         );
         const transformed = Array.isArray(response.data)
-          ? response.data.map((t, idx) => transformTask(t, idx))
+          ? response.data
+              .filter((t) => (t.statusTugas || t.status) !== 'Selesai')
+              .map((t, idx) => transformTask(t, idx))
           : [];
         setTasks(transformed);
       } catch (error) {

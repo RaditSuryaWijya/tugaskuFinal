@@ -10,7 +10,8 @@ export default function CustomDateTimePicker({
   value, 
   onChange, 
   mode = 'datetime',
-  label
+  label,
+  minimumDate
 }) {
   const { i18n } = useTranslation();
   const currentLocale = i18n.language === 'id' ? id : enUS;
@@ -81,6 +82,7 @@ export default function CustomDateTimePicker({
           is24Hour={true}
           display="default"
           onChange={handleChange}
+          minimumDate={minimumDate}
         />
       )}
     </View>

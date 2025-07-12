@@ -4,16 +4,16 @@ import { id } from 'date-fns/locale';
 export const formatDate = (date) => {
   try {
     if (!date) return '-';
-    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+  const parsedDate = typeof date === 'string' ? parseISO(date) : date;
     if (!parsedDate || isNaN(parsedDate.getTime())) return '-';
-    if (isToday(parsedDate)) {
-      return 'Hari ini';
-    } else if (isTomorrow(parsedDate)) {
-      return 'Besok';
-    } else if (isYesterday(parsedDate)) {
-      return 'Kemarin';
-    }
-    return format(parsedDate, 'dd MMMM yyyy', { locale: id });
+  if (isToday(parsedDate)) {
+    return 'Hari ini';
+  } else if (isTomorrow(parsedDate)) {
+    return 'Besok';
+  } else if (isYesterday(parsedDate)) {
+    return 'Kemarin';
+  }
+  return format(parsedDate, 'dd MMMM yyyy', { locale: id });
   } catch {
     return '-';
   }
@@ -22,9 +22,9 @@ export const formatDate = (date) => {
 export const formatTime = (date) => {
   try {
     if (!date) return '-';
-    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+  const parsedDate = typeof date === 'string' ? parseISO(date) : date;
     if (!parsedDate || isNaN(parsedDate.getTime())) return '-';
-    return format(parsedDate, 'HH:mm', { locale: id });
+  return format(parsedDate, 'HH:mm', { locale: id });
   } catch {
     return '-';
   }

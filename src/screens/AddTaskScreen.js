@@ -51,18 +51,6 @@ export default function AddTaskScreen({ navigation, route }) {
   const [userId, setUserId] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [reminderType, setReminderType] = useState('none'); 
-  const [reminderCustom, setReminderCustom] = useState(null);
-  const [reminderDialogVisible, setReminderDialogVisible] = useState(false);
-  const reminderOptions = [
-    { value: 'none', label: t("reminder.none") },
-    { value: '5m', label: t("reminder.5m") },
-    { value: '15m', label: t("reminder.15m") },
-    { value: '30m', label: t("reminder.30m") },
-    { value: '1h', label: t("reminder.1h") },
-    { value: '1d', label: t("reminder.1d") },
-    { value: 'custom', label: t("reminder.custom") },
-  ];
 
   useEffect(() => {
     const getUserId = async () => {
@@ -161,6 +149,12 @@ export default function AddTaskScreen({ navigation, route }) {
   };
 
   const handleStartTimeChange = (newDateTime) => {
+    const now = new Date();
+    if (newDateTime < now) {
+      setSnackbarMessage(t("task.startTimeNotInPast"));
+      setSnackbarVisible(true);
+      return;
+    }
     setTaskData({ ...taskData, startTime: newDateTime });
     if (taskData.endTime < newDateTime) {
       const newEndTime = new Date(newDateTime);
@@ -201,6 +195,11 @@ export default function AddTaskScreen({ navigation, route }) {
     }
     if (new Date(taskData.endTime) <= new Date(taskData.startTime)) {
       setSnackbarMessage(t("task.endTimeAfterStart"));
+      setSnackbarVisible(true);
+      return;
+    }
+    if (new Date(taskData.startTime) < new Date()) {
+      setSnackbarMessage(t("task.startTimeNotInPast"));
       setSnackbarVisible(true);
       return;
     }
@@ -251,45 +250,6 @@ export default function AddTaskScreen({ navigation, route }) {
       console.log('Data yang akan dikirim ke API:', body);
       const response = await taskService.addTask(body);
       console.log('Response dari API:', response);
-
-      let reminderDate = null;
-      if (reminderType === 'custom' && reminderCustom) {
-        reminderDate = new Date(reminderCustom);
-      } else if (reminderType !== 'none') {
-        const endTime = new Date(taskData.endTime);
-        switch (reminderType) {
-          case '5m': reminderDate = new Date(endTime.getTime() - 5 * 60 * 1000); break;
-          case '15m': reminderDate = new Date(endTime.getTime() - 15 * 60 * 1000); break;
-          case '30m': reminderDate = new Date(endTime.getTime() - 30 * 60 * 1000); break;
-          case '1h': reminderDate = new Date(endTime.getTime() - 60 * 60 * 1000); break;
-          case '1d': reminderDate = new Date(endTime.getTime() - 24 * 60 * 60 * 1000); break;
-          default: break;
-        }
-      }
-
-      if (reminderDate && reminderDate <= new Date()) {
-        setSnackbarMessage(t("reminder.future_required"));
-        setSnackbarVisible(true);
-        return;
-      }
-
-      if (reminderDate && reminderDate > new Date()) {
-        try {
-          const notifId = await Notifications.scheduleNotificationAsync({
-            content: {
-              title: `${t("task.info")}: ${taskData.title}`,
-              body: t("task.saved"),
-              data: { taskId: response.data?.id || 'unknown' },
-            },
-            trigger: { date: reminderDate },
-          });
-          if (response.data?.id) {
-            await AsyncStorage.setItem(`notif_task_${response.data.id}`, notifId);
-          }
-        } catch (error) {
-          console.error('Error scheduling notification:', error);
-        }
-      }
 
       setSnackbarMessage(t("task.saved"));
       setSnackbarVisible(true);
@@ -348,6 +308,7 @@ export default function AddTaskScreen({ navigation, route }) {
               value={taskData.startTime}
               onChange={handleStartTimeChange}
               style={styles.dateTimePicker}
+              minimumDate={new Date()}
             />
             <Text style={styles.timeDisplay}>
               {formatDisplayDateTime(taskData.startTime)}
@@ -364,51 +325,6 @@ export default function AddTaskScreen({ navigation, route }) {
               {formatDisplayDateTime(taskData.endTime)}
             </Text>
           </View>
-        </View>
-        <View style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>{t("task.reminder")}</Text>
-          <Button
-            mode="outlined"
-            onPress={() => setReminderDialogVisible(true)}
-            style={{ borderColor: '#3892c6' }}
-            textColor="#3892c6"
-          >
-            {reminderOptions.find(opt => opt.value === reminderType)?.label || t("reminder.select")}
-          </Button>
-          <Portal>
-            <Dialog
-              visible={reminderDialogVisible}
-              onDismiss={() => setReminderDialogVisible(false)}
-            >
-              <Dialog.Title>{t("reminder.select_time")}</Dialog.Title>
-              <Dialog.Content>
-                <RadioButton.Group
-                  onValueChange={value => setReminderType(value)}
-                  value={reminderType}
-                >
-                  {reminderOptions.map(opt => (
-                    <View key={opt.value} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                      <RadioButton value={opt.value} />
-                      <Text>{opt.label}</Text>
-                    </View>
-                  ))}
-                </RadioButton.Group>
-                {reminderType === 'custom' && (
-                  <CustomDateTimePicker
-                    label={t("reminder.select_time")}
-                    value={reminderCustom || new Date()}
-                    onChange={date => setReminderCustom(date)}
-                    mode="datetime"
-                  />
-                )}
-              </Dialog.Content>
-              <Dialog.Actions>
-                <Button onPress={() => setReminderDialogVisible(false)} textColor="#d32f2f">{t("common.cancel")}</Button>
-                <Button onPress={() => setReminderDialogVisible(false)}>{t("common.ok")}</Button>
-              </Dialog.Actions>
-            </Dialog>
-          </Portal>
-          <Text style={styles.helperText}>{t("reminder.helper")}</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
           <Switch value={showExtra} onValueChange={setShowExtra} color="#3892c6" />

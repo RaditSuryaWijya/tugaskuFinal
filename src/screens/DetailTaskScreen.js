@@ -312,7 +312,7 @@ export default function DetailTaskScreen({ route, navigation }) {
         <Dialog visible={confirmDeleteVisible} onDismiss={hideDeleteConfirm}>
           <Dialog.Title>{t('delete_task')}</Dialog.Title>
           <Dialog.Content>
-            <Paragraph>{t('logout_confirm_text')}</Paragraph>
+            <Paragraph>{t('delete_task_confirm_text')}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={hideDeleteConfirm}>{t('common.cancel')}</Button>

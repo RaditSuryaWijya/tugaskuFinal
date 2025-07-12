@@ -40,6 +40,7 @@
   "location": "Lokasi",
   "complete_task": "Selesaikan Tugas",
   "delete_task": "Hapus Tugas",
+  "delete_task_confirm_text": "Apakah Anda yakin ingin menghapus tugas ini? Tindakan ini tidak dapat dibatalkan.",
   "loading_task_details": "Memuat detail tugas...",
   "task_not_found": "Tugas tidak ditemukan.",
   "task_completed_successfully": "Tugas berhasil diselesaikan!",
