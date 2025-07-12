@@ -159,7 +159,7 @@ export default function BottomNavigation() {
         headerTitle: () => (
           <View style={styles.headerContainer}>
             <Logo />
-                <Text style={styles.headerTitle}>{t('header.title')}</Text>
+                <Text style={styles.headerTitle}>TugasKu</Text>
           </View>
         ),
         headerStyle: {
