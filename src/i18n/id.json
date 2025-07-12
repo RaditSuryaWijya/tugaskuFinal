@@ -1,0 +1,213 @@
+{
+  "settings": "Pengaturan",
+  "language": "Bahasa",
+  "dark_mode": "Mode Gelap",
+  "enable_notifications": "Aktifkan Notifikasi",
+  "sound": "Suara",
+  "vibration": "Getar",
+  "app_version": "Versi Aplikasi",
+  "about": "Tentang",
+  "default_user": "Azizah Salsa",
+  "dev_mode": "Mode Pengembangan",
+  "phone_number": "No Telepon",
+  "email": "Email",
+  "gender": "Jenis Kelamin",
+  "birth_date": "Tanggal Lahir",
+  "logout": "Keluar",
+  "logout_confirm_title": "Konfirmasi Logout",
+  "logout_confirm_text": "Apakah Anda yakin ingin keluar dari aplikasi?",
+  "loading_map": "Memuat peta...",
+  "location_permission_required": "Izin akses lokasi diperlukan untuk fitur ini",
+  "location_fetch_failed": "Gagal mendapatkan lokasi. Menggunakan lokasi default.",
+  "location_save_failed": "Gagal menyimpan lokasi. Pastikan koordinat yang dipilih valid.",
+  "task_location": "Lokasi Tugas",
+  "drag_to_change": "Tap pada peta atau geser pin untuk memilih lokasi",
+  "save_location": "Simpan Lokasi",
+  "error": "Error",
+  "start": "Mulai",
+  "end": "Akhir",
+  "to": "s/d",
+  "fetch_failed": "Gagal mengambil data tugas",
+  "no_tasks_for_week": "Tidak ada tugas untuk minggu {{date}}",
+  "status": "Status",
+  "completed": "Selesai",
+  "not_completed": "Belum Selesai",
+  "time": "Waktu",
+  "start_time": "Waktu Mulai",
+  "end_time": "Waktu Selesai",
+  "priority": "Prioritas",
+  "description": "Deskripsi",
+  "location": "Lokasi",
+  "complete_task": "Selesaikan Tugas",
+  "delete_task": "Hapus Tugas",
+  "loading_task_details": "Memuat detail tugas...",
+  "task_not_found": "Tugas tidak ditemukan.",
+  "task_completed_successfully": "Tugas berhasil diselesaikan!",
+  "task_deleted_successfully": "Tugas berhasil dihapus!",
+  "error_fetching_task": "Gagal mengambil detail tugas.",
+  "error_completing_task": "Gagal menyelesaikan tugas.",
+  "error_deleting_task": "Gagal menghapus tugas.",
+  "login": {
+    "title": "Masuk ke TugasKu",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "button_login": "Masuk",
+    "no_account": "Belum punya akun?",
+    "register_button": "Daftar",
+    "development_mode": "Mode Pengembangan",
+    "skip_login": "Lewati",
+    "error_empty_fields": "Email dan kata sandi harus diisi",
+    "error_generic": "Gagal Masuk. Silakan coba lagi."
+  },
+  "register": {
+    "title": "Register TugasKu",
+    "phone": "Phone Number",
+    "phonePlaceholder": "+628 52 657-9999",
+    "email": "Email",
+    "emailPlaceholder": "azizahsal@gmail.com",
+    "gender": "Gender",
+    "selectGender": "Select Gender",
+    "male": "Male",
+    "female": "Female",
+    "dob": "Date of Birth",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "registerButton": "Register",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Login",
+    "savingData": "Saving registration data...",
+    "success": "Registration successful!",
+    "errorGeneric": "Registration failed.",
+    "errorServer": "Server error, please try again later.",
+    "validation": {
+      "errorEmptyFields": "All fields must be filled.",
+      "errorPasswordMismatch": "Passwords do not match."
+    }
+  },
+  "dashboard": {
+    "completedTasks": "Tugas Selesai",
+    "pendingTasks": "Tugas Belum Selesai"
+  },
+  "tabBar": {
+    "agenda": "Agenda",
+    "riwayat": "Riwayat",
+    "tambah": "Tambah",
+    "notifikasi": "Notifikasi",
+    "profil": "Profil"
+  },
+  "header": {
+    "title": "TugasKu"
+  },
+  "notification": {
+    "loading": "Memuat notifikasi...",
+    "no_notifications": "Tidak ada notifikasi",
+    "error_fetching": "Gagal memuat notifikasi. Silakan coba lagi.",
+    "user_data_not_found": "Data pengguna tidak ditemukan"
+  },
+  "datePicker": {
+    "selectDate": "Pilih Tanggal"
+  },
+  "agenda": {
+    "ongoing": "Sedang Berlangsung"
+  },
+  "sun": "Min",
+  "mon": "Sen",
+  "tue": "Sel",
+  "wed": "Rab",
+  "thu": "Kam",
+  "fri": "Jum",
+  "sat": "Sab",
+  "jan": "Januari",
+  "feb": "Februari",
+  "mar": "Maret",
+  "apr": "April",
+  "may": "Mei",
+  "jun": "Juni",
+  "jul": "Juli",
+  "aug": "Agustus",
+  "sep": "September",
+  "oct": "Oktober",
+  "nov": "November",
+  "dec": "Desember",
+  "task": {
+    "info": "Informasi Tugas",
+    "title": "Judul Tugas",
+    "description": "Deskripsi",
+    "priority": "Prioritas",
+    "time": "Waktu",
+    "startTime": "Waktu Mulai",
+    "endTime": "Waktu Selesai",
+    "reminder": "Pengingat",
+    "requiredFields": "Judul, deskripsi, waktu, dan prioritas wajib diisi!",
+    "invalidTime": "Waktu mulai dan selesai harus dipilih!",
+    "endTimeAfterStart": "Waktu selesai harus setelah waktu mulai!",
+    "uploadingPhoto": "Mengupload foto...",
+    "resetForm": "Form berhasil dibersihkan!",
+    "saved": "Tugas berhasil disimpan!"
+  },
+  "priority": {
+    "rendah": "Rendah",
+    "sedang": "Sedang",
+    "tinggi": "Tinggi"
+  },
+  "reminder": {
+    "none": "Tidak usah diingatkan",
+    "5m": "5 menit sebelum",
+    "15m": "15 menit sebelum",
+    "30m": "30 menit sebelum",
+    "1h": "1 jam sebelum",
+    "1d": "1 hari sebelum",
+    "custom": "Custom...",
+    "helper": "Pilih kapan kamu ingin diingatkan untuk tugas ini.",
+    "future_required": "Waktu pengingat harus di masa depan!",
+    "select": "Pilih Pengingat",
+    "select_time": "Pilih Waktu Pengingat"
+  },
+  "photo": {
+    "take": "Ambil Foto",
+    "pick": "Pilih dari Galeri",
+    "success": "Foto berhasil dipilih!",
+    "fail": "Gagal mengambil foto. Silakan coba lagi.",
+    "optional": "Foto (Opsional)"
+  },
+  "location": {
+    "optional": "Lokasi (Opsional)",
+    "add": "Tambah Lokasi",
+    "change": "Ubah Lokasi",
+    "added": "Lokasi berhasil ditambahkan!"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Batal",
+    "error": "Terjadi kesalahan",
+    "userNotFound": "User ID tidak ditemukan",
+    "userNotAvailable": "User ID tidak tersedia",
+    "save": "Simpan",
+    "clear": "Bersihkan",
+    "select": "Pilih"
+  },
+  "extra": {
+    "show": "Tampilkan Informasi Tambahan",
+    "hide": "Sembunyikan Informasi Tambahan",
+    "title": "Informasi Tambahan",
+    "optionalNote": "Bagian ini opsional, bisa diisi jika ingin menambah lokasi atau foto."
+  },
+  "profile": {
+    "edit": "Edit Profil",
+    "personal_info": "Informasi Pribadi",
+    "save_success": "Profil berhasil diperbarui!",
+    "save_error": "Gagal memperbarui profil"
+  },
+  "password": {
+    "change": "Ganti Kata Sandi",
+    "current": "Kata Sandi Saat Ini",
+    "new": "Kata Sandi Baru",
+    "confirm": "Konfirmasi Kata Sandi Baru",
+    "validation": {
+      "current_required": "Kata sandi saat ini diperlukan untuk mengganti kata sandi",
+      "length": "Kata sandi minimal 6 karakter",
+      "mismatch": "Kata sandi baru tidak cocok"
+    }
+  },
+  "priorityLabel": "Prioritas"
+}

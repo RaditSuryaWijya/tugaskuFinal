@@ -6,6 +6,8 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { Text, Platform, Button, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './src/i18n/i18n';
 
 const theme = {
   ...DefaultTheme,
@@ -109,15 +111,18 @@ export default function App() {
     });
   };
 
-  return (
-    <AuthProvider>
-      <PaperProvider theme={theme}>
-        <NavigationContainer>
-          <AppContent />
-        </NavigationContainer>
-      </PaperProvider>
-    </AuthProvider>
+    return (
+    <I18nextProvider i18n={i18n}>
+      <AuthProvider>
+        <PaperProvider theme={theme}>
+          <NavigationContainer>
+            <AppContent />
+          </NavigationContainer>
+        </PaperProvider>
+      </AuthProvider>
+    </I18nextProvider>
   );
+
 }
 
 // Fungsi untuk mendapatkan token push notification

@@ -8,26 +8,23 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, { Marker } from 'react-native-maps';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { id, enUS } from 'date-fns/locale';
 import { Menu, List, Portal, Dialog, RadioButton } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 export default function AddTaskScreen({ navigation, route }) {
   const initialFormState = {
     title: '',
     description: '',
     startTime: (() => {
-      // Waktu sekarang
       const now = new Date();
-      // Bulatkan ke menit terdekat
       now.setSeconds(0);
       now.setMilliseconds(0);
       return now;
     })(),
     endTime: (() => {
-      // 1 jam dari sekarang
       const oneHourLater = new Date();
       oneHourLater.setHours(oneHourLater.getHours() + 1);
-      // Bulatkan ke menit terdekat
       oneHourLater.setSeconds(0);
       oneHourLater.setMilliseconds(0);
       return oneHourLater;
@@ -38,13 +35,13 @@ export default function AddTaskScreen({ navigation, route }) {
     priority: 'sedang',
   };
 
+  const { t, i18n } = useTranslation();
+  const currentLocale = i18n.language === 'id' ? id : enUS;
   const [taskData, setTaskData] = useState(initialFormState);
   const [showExtra, setShowExtra] = useState(false);
-
-  // Format waktu untuk tampilan
   const formatDisplayDateTime = (date) => {
     try {
-      return format(new Date(date), 'EEEE, dd MMMM yyyy HH:mm', { locale: id });
+      return format(new Date(date), 'EEEE, dd MMMM yyyy HH:mm', { locale: currentLocale });
     } catch (error) {
       console.error('Error formatting date:', error);
       return '';
@@ -54,22 +51,17 @@ export default function AddTaskScreen({ navigation, route }) {
   const [userId, setUserId] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-
-  // Tambahkan state untuk reminder
-  const [reminderType, setReminderType] = useState('none'); // none, 5m, 15m, 30m, 1h, 1d, custom
+  const [reminderType, setReminderType] = useState('none'); 
   const [reminderCustom, setReminderCustom] = useState(null);
-  // Hapus state reminderMenuVisible, ganti dengan reminderDialogVisible
   const [reminderDialogVisible, setReminderDialogVisible] = useState(false);
-
-  // Helper untuk label
   const reminderOptions = [
-    { value: 'none', label: 'Tidak usah diingatkan' },
-    { value: '5m', label: '5 menit sebelum' },
-    { value: '15m', label: '15 menit sebelum' },
-    { value: '30m', label: '30 menit sebelum' },
-    { value: '1h', label: '1 jam sebelum' },
-    { value: '1d', label: '1 hari sebelum' },
-    { value: 'custom', label: 'Custom...' },
+    { value: 'none', label: t("reminder.none") },
+    { value: '5m', label: t("reminder.5m") },
+    { value: '15m', label: t("reminder.15m") },
+    { value: '30m', label: t("reminder.30m") },
+    { value: '1h', label: t("reminder.1h") },
+    { value: '1d', label: t("reminder.1d") },
+    { value: 'custom', label: t("reminder.custom") },
   ];
 
   useEffect(() => {
@@ -81,18 +73,17 @@ export default function AddTaskScreen({ navigation, route }) {
         if (storedUserId) {
           setUserId(parsedUser.idUser);
         } else {
-          setSnackbarMessage('User ID tidak ditemukan');
+          setSnackbarMessage(t("common.userNotFound"));
           setSnackbarVisible(true);
           navigation.goBack();
         }
       } catch (error) {
         console.error('Error mengambil user ID:', error);
-        setSnackbarMessage('Gagal mengambil user ID');
+        setSnackbarMessage(t("common.error"));
         setSnackbarVisible(true);
         navigation.goBack();
       }
     };
-
     getUserId();
   }, []);
 
@@ -102,7 +93,7 @@ export default function AddTaskScreen({ navigation, route }) {
         ...prev,
         location: route.params.selectedLocation
       }));
-      setSnackbarMessage('Lokasi berhasil ditambahkan!');
+      setSnackbarMessage(t("location.added"));
       setSnackbarVisible(true);
     }
   }, [route.params?.selectedLocation]);
@@ -111,7 +102,7 @@ export default function AddTaskScreen({ navigation, route }) {
     (async () => {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        setSnackbarMessage('Izin kamera diperlukan untuk mengambil foto');
+        setSnackbarMessage(t("photo.fail"));
         setSnackbarVisible(true);
       }
     })();
@@ -126,21 +117,19 @@ export default function AddTaskScreen({ navigation, route }) {
         aspect: [4, 3],
         quality: 0.7,
       };
-
       if (type === 'camera') {
         result = await ImagePicker.launchCameraAsync(options);
       } else {
         result = await ImagePicker.launchImageLibraryAsync(options);
       }
-
       if (!result.canceled) {
         setTaskData({ ...taskData, photo: result.assets[0].uri });
-        setSnackbarMessage('Foto berhasil dipilih!');
+        setSnackbarMessage(t("photo.success"));
         setSnackbarVisible(true);
       }
     } catch (error) {
       console.error('Error handling image:', error);
-      setSnackbarMessage('Gagal mengambil foto. Silakan coba lagi.');
+      setSnackbarMessage(t("photo.fail"));
       setSnackbarVisible(true);
     }
   };
@@ -158,7 +147,7 @@ export default function AddTaskScreen({ navigation, route }) {
             name: location.name
           }
         }));
-        setSnackbarMessage('Lokasi berhasil ditambahkan!');
+        setSnackbarMessage(t("location.added"));
         setSnackbarVisible(true);
       }
     });
@@ -180,7 +169,6 @@ export default function AddTaskScreen({ navigation, route }) {
     }
   };
 
-  // Fungsi untuk mereset form ke kondisi awal
   const resetForm = () => {
     setTaskData({
       ...initialFormState,
@@ -201,38 +189,31 @@ export default function AddTaskScreen({ navigation, route }) {
   };
 
   const handleSave = async () => {
-    // Validasi field wajib
     if (!taskData.title || !taskData.description || !taskData.startTime || !taskData.endTime || !taskData.priority) {
-      setSnackbarMessage('Judul, deskripsi, waktu, dan prioritas wajib diisi!');
+      setSnackbarMessage(t("task.requiredFields"));
       setSnackbarVisible(true);
       return;
     }
-
-    // Validasi waktu
     if (isNaN(new Date(taskData.startTime).getTime()) || isNaN(new Date(taskData.endTime).getTime())) {
-      setSnackbarMessage('Waktu mulai dan selesai harus dipilih!');
+      setSnackbarMessage(t("task.invalidTime"));
       setSnackbarVisible(true);
       return;
     }
-
     if (new Date(taskData.endTime) <= new Date(taskData.startTime)) {
-      setSnackbarMessage('Waktu selesai harus setelah waktu mulai!');
+      setSnackbarMessage(t("task.endTimeAfterStart"));
       setSnackbarVisible(true);
       return;
     }
-
     if (!userId) {
-      setSnackbarMessage('User ID tidak tersedia');
+      setSnackbarMessage(t("common.userNotAvailable"));
       setSnackbarVisible(true);
       return;
     }
 
     try {
       let fileName = null;
-
-      // Upload foto jika ada
       if (taskData.photo) {
-        setSnackbarMessage('Mengupload foto...');
+        setSnackbarMessage(t("task.uploadingPhoto"));
         setSnackbarVisible(true);
 
         const uploadResponse = await taskService.uploadFile(taskData.photo);
@@ -243,20 +224,17 @@ export default function AddTaskScreen({ navigation, route }) {
                   uploadResponse.data;
         
         if (!fileName) {
-          throw new Error('Nama file tidak ditemukan dalam response');
+          throw new Error(t("task.uploadError"));
         }
       }
 
-      setSnackbarMessage('Menyimpan tugas...');
-      
-      // Helper untuk format ISO DateTime
+      setSnackbarMessage(t("task.saving"));
       const pad = (n) => n.toString().padStart(2, '0');
       const toISODateTimeString = (date) => {
         const d = new Date(date);
         return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
       };
 
-      // Mapping ke body API
       const body = {
         judulTugas: taskData.title,
         deskripsi: taskData.description,
@@ -271,11 +249,9 @@ export default function AddTaskScreen({ navigation, route }) {
       };
 
       console.log('Data yang akan dikirim ke API:', body);
-      
       const response = await taskService.addTask(body);
       console.log('Response dari API:', response);
 
-      // Jadwalkan notifikasi sesuai pilihan reminder
       let reminderDate = null;
       if (reminderType === 'custom' && reminderCustom) {
         reminderDate = new Date(reminderCustom);
@@ -290,23 +266,23 @@ export default function AddTaskScreen({ navigation, route }) {
           default: break;
         }
       }
-      // Validasi: reminderDate harus di masa depan
+
       if (reminderDate && reminderDate <= new Date()) {
-        setSnackbarMessage('Waktu pengingat harus di masa depan!');
+        setSnackbarMessage(t("reminder.future_required"));
         setSnackbarVisible(true);
         return;
       }
+
       if (reminderDate && reminderDate > new Date()) {
         try {
           const notifId = await Notifications.scheduleNotificationAsync({
             content: {
-              title: `Pengingat Tugas: ${taskData.title}`,
-              body: `Jangan lupa tugasmu!`,
+              title: `${t("task.info")}: ${taskData.title}`,
+              body: t("task.saved"),
               data: { taskId: response.data?.id || 'unknown' },
             },
             trigger: { date: reminderDate },
           });
-          // Simpan notifId ke AsyncStorage dengan key unik (misal: 'notif_task_{id}')
           if (response.data?.id) {
             await AsyncStorage.setItem(`notif_task_${response.data.id}`, notifId);
           }
@@ -315,25 +291,20 @@ export default function AddTaskScreen({ navigation, route }) {
         }
       }
 
-      setSnackbarMessage('Tugas berhasil disimpan!');
+      setSnackbarMessage(t("task.saved"));
       setSnackbarVisible(true);
-      
-      // Reset form setelah berhasil menyimpan
       resetForm();
-      
-      // Tunggu snackbar selesai sebelum kembali
       setTimeout(() => {
         navigation.goBack();
       }, 2000);
 
     } catch (error) {
       console.error('Error saving task:', error);
-      setSnackbarMessage(error.message || 'Gagal menyimpan tugas. Silakan coba lagi.');
+      setSnackbarMessage(error.message || t("task.saveError"));
       setSnackbarVisible(true);
     }
   };
 
-  // Tambahkan fungsi untuk handle tombol batal
   const handleCancel = () => {
     navigation.navigate('Agenda', {
       refresh: true,
@@ -344,42 +315,36 @@ export default function AddTaskScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
-        <Text style={styles.sectionTitle}>Informasi Tugas</Text>
+        <Text style={styles.sectionTitle}>{t("task.info")}</Text>
         <TextInput
-          label="Judul Tugas *"
+          label={t("task.title")}
           value={taskData.title}
           onChangeText={(text) => setTaskData({ ...taskData, title: text })}
           style={styles.input}
-          mode="outlined"
-        />
-        
+          mode="outlined"/>
         <TextInput
-          label="Deskripsi *"
+          label={t("task.description")}
           value={taskData.description}
           onChangeText={(text) => setTaskData({ ...taskData, description: text })}
           style={styles.input}
           multiline
           numberOfLines={4}
-          mode="outlined"
-        />
-
-        <Text style={styles.label}>Prioritas *</Text>
+          mode="outlined"/>
+        <Text style={styles.label}>{t("task.priority")}</Text>
         <SegmentedButtons
           value={taskData.priority}
           onValueChange={value => setTaskData({ ...taskData, priority: value })}
           buttons={[
-            { value: 'rendah', label: 'Rendah' },
-            { value: 'sedang', label: 'Sedang' },
-            { value: 'tinggi', label: 'Tinggi' }
+            { value: 'rendah', label: t("priority.rendah") },
+            { value: 'sedang', label: t("priority.sedang") },
+            { value: 'tinggi', label: t("priority.tinggi") }
           ]}
-          style={styles.segmentedButton}
-        />
-
-        <Text style={styles.label}>Waktu *</Text>
+          style={styles.segmentedButton}/>
+        <Text style={styles.label}>{t("task.time")}</Text>
         <View style={styles.timeContainer}>
           <View style={styles.timeWrapper}>
             <CustomDateTimePicker
-              label="Waktu Mulai"
+              label={t("task.startTime")}
               value={taskData.startTime}
               onChange={handleStartTimeChange}
               style={styles.dateTimePicker}
@@ -388,10 +353,9 @@ export default function AddTaskScreen({ navigation, route }) {
               {formatDisplayDateTime(taskData.startTime)}
             </Text>
           </View>
-
           <View style={styles.timeWrapper}>
             <CustomDateTimePicker
-              label="Waktu Selesai"
+              label={t("task.endTime")}
               value={taskData.endTime}
               onChange={handleEndTimeChange}
               style={styles.dateTimePicker}
@@ -402,21 +366,21 @@ export default function AddTaskScreen({ navigation, route }) {
           </View>
         </View>
         <View style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>Ingatkan saya</Text>
+          <Text style={styles.label}>{t("task.reminder")}</Text>
           <Button
             mode="outlined"
             onPress={() => setReminderDialogVisible(true)}
             style={{ borderColor: '#3892c6' }}
             textColor="#3892c6"
           >
-            {reminderOptions.find(opt => opt.value === reminderType)?.label || 'Pilih reminder'}
+            {reminderOptions.find(opt => opt.value === reminderType)?.label || t("reminder.select")}
           </Button>
           <Portal>
             <Dialog
               visible={reminderDialogVisible}
               onDismiss={() => setReminderDialogVisible(false)}
             >
-              <Dialog.Title>Pilih Waktu Pengingat</Dialog.Title>
+              <Dialog.Title>{t("reminder.select_time")}</Dialog.Title>
               <Dialog.Content>
                 <RadioButton.Group
                   onValueChange={value => setReminderType(value)}
@@ -431,7 +395,7 @@ export default function AddTaskScreen({ navigation, route }) {
                 </RadioButton.Group>
                 {reminderType === 'custom' && (
                   <CustomDateTimePicker
-                    label="Pilih waktu pengingat"
+                    label={t("reminder.select_time")}
                     value={reminderCustom || new Date()}
                     onChange={date => setReminderCustom(date)}
                     mode="datetime"
@@ -439,28 +403,25 @@ export default function AddTaskScreen({ navigation, route }) {
                 )}
               </Dialog.Content>
               <Dialog.Actions>
-                <Button onPress={() => setReminderDialogVisible(false)} textColor="#d32f2f">Batal</Button>
-                <Button onPress={() => setReminderDialogVisible(false)}>OK</Button>
+                <Button onPress={() => setReminderDialogVisible(false)} textColor="#d32f2f">{t("common.cancel")}</Button>
+                <Button onPress={() => setReminderDialogVisible(false)}>{t("common.ok")}</Button>
               </Dialog.Actions>
             </Dialog>
           </Portal>
-          <Text style={styles.helperText}>Pilih kapan kamu ingin diingatkan untuk tugas ini.</Text>
+          <Text style={styles.helperText}>{t("reminder.helper")}</Text>
         </View>
-
-        {/* Saklar untuk informasi tambahan */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
           <Switch value={showExtra} onValueChange={setShowExtra} color="#3892c6" />
           <Text style={{ marginLeft: 8, fontSize: 16, color: '#3892c6', fontWeight: 'bold' }}>
-            {showExtra ? 'Sembunyikan Informasi Tambahan' : 'Tambah Informasi Tambahan'}
+            {showExtra ? t("extra.hide") : t("extra.show")}
           </Text>
         </View>
-        {/* Informasi Tambahan (hide/show) */}
         {showExtra && (
           <>
-            <Text style={styles.sectionTitle}>Informasi Tambahan</Text>
-            <Text style={styles.helperText}>Lokasi dan foto bersifat opsional</Text>
+            <Text style={styles.sectionTitle}>{t("extra.title")}</Text>
+            <Text style={styles.helperText}>{t("extra.optionalNote")}</Text>
 
-            <Text style={styles.label}>Lokasi (Opsional)</Text>
+            <Text style={styles.label}>{t("location.optional")}</Text>
             <Button 
               mode="outlined" 
               onPress={handleAddLocation}
@@ -468,7 +429,7 @@ export default function AddTaskScreen({ navigation, route }) {
               textColor="#3892c6"
               theme={{ colors: { outline: '#3892c6' } }}
             >
-              {taskData.location ? 'Ubah Lokasi' : 'Tambah Lokasi'}
+              {taskData.location ? t("location.change") : t("location.add")}
             </Button>
             {taskData.location && (
               <View style={styles.mapPreview}>
@@ -487,7 +448,7 @@ export default function AddTaskScreen({ navigation, route }) {
               </View>
             )}
 
-            <Text style={styles.label}>Foto (Opsional)</Text>
+            <Text style={styles.label}>{t("photo.optional")}</Text>
             <View style={styles.photoButtons}>
               <Button 
                 mode="outlined" 
@@ -496,7 +457,7 @@ export default function AddTaskScreen({ navigation, route }) {
                 textColor="#3892c6"
                 theme={{ colors: { outline: '#3892c6' } }}
               >
-                Ambil Foto
+                {t("photo.take")}
               </Button>
               <Button 
                 mode="outlined" 
@@ -505,7 +466,7 @@ export default function AddTaskScreen({ navigation, route }) {
                 textColor="#3892c6"
                 theme={{ colors: { outline: '#3892c6' } }}
               >
-                Pilih dari Galeri
+                {t("photo.pick")}
               </Button>
             </View>
             {taskData.photo && (
@@ -513,9 +474,6 @@ export default function AddTaskScreen({ navigation, route }) {
             )}
           </>
         )}
-
-
-
         <View style={styles.buttonContainer}>
           <Button 
             mode="contained" 
@@ -523,24 +481,23 @@ export default function AddTaskScreen({ navigation, route }) {
             style={styles.saveButton}
             buttonColor="#3892c6"
           >
-            Simpan
+            {t("common.save")}
           </Button>
           <Button 
             mode="outlined" 
             onPress={() => {
               resetForm();
-              setSnackbarMessage('Form berhasil dibersihkan!');
+              setSnackbarMessage(t("task.resetForm"));
               setSnackbarVisible(true);
             }}
             style={styles.cancelButton}
             textColor="#3892c6"
             theme={{ colors: { outline: '#3892c6' } }}
           >
-            Clear
+            {t("common.clear")}
           </Button>
         </View>
       </ScrollView>
-
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { Surface, Text, Avatar, Button, Divider, Portal, Dialog } from 'react-native-paper';
+import { View, StyleSheet, SafeAreaView, ScrollView, Image } from 'react-native';
+import { Surface, Text, Avatar, Button, Divider, Portal, Dialog, IconButton } from 'react-native-paper';
 import { useAuth } from '../context/AuthContext';
 import { IS_DEVELOPMENT } from '../config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileScreen() {
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const navigation = useNavigation();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -17,14 +19,12 @@ export default function ProfileScreen() {
     const fetchUser = async () => {
       try {
         const userData = await AsyncStorage.getItem('user');
-        console.log(userData);
+        console.log('userData', userData);
         if (userData) {
           const parsedUser = JSON.parse(userData);
-          console.log(parsedUser);
-          // Format tanggal lahir jika ada
           if (parsedUser.tanggalLahir) {
             const date = new Date(parsedUser.tanggalLahir);
-            parsedUser.tanggalLahir = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+            parsedUser.tanggalLahir = date.toISOString().split('T')[0];
           }
           setUser(parsedUser);
         }
@@ -33,7 +33,10 @@ export default function ProfileScreen() {
       }
     };
     fetchUser();
-  }, []);
+    // Tambahkan listener untuk refresh saat screen difokuskan
+    const unsubscribe = navigation.addListener('focus', fetchUser);
+    return unsubscribe;
+  }, [navigation]);
 
   const handleLogout = async () => {
     try {
@@ -58,6 +61,14 @@ export default function ProfileScreen() {
     idUser: '-',
   };
 
+  const BASE_IMAGE_URL = 'http://192.168.100.3:8081/uploads/images';
+
+  const getProfilePhotoUrl = (fotoProfil) => {
+    if (!fotoProfil) return null;
+    if (fotoProfil.startsWith('http')) return fotoProfil;
+    return `${BASE_IMAGE_URL}/${fotoProfil}`;
+  };
+
   const renderProfileItem = (icon, label, value) => (
     <View style={styles.profileItem}>
       <View style={styles.iconContainer}>
@@ -67,6 +78,12 @@ export default function ProfileScreen() {
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.value}>{value}</Text>
       </View>
+      <IconButton
+        icon="pencil"
+        size={20}
+        onPress={() => navigation.navigate('EditProfile')}
+        style={styles.editButton}
+      />
     </View>
   );
 
@@ -75,9 +92,19 @@ export default function ProfileScreen() {
       <Surface style={styles.surface}>
         <ScrollView>
           <View style={styles.header}>
-            <Avatar.Icon size={80} icon="account" style={styles.avatar} />
-            <Text style={styles.username}>{user ? user.email : 'Azizah Salsa'}</Text>
-            {IS_DEVELOPMENT && <Text style={styles.devBadge}>Modeeee Pengembangan</Text>}
+            {user && user.fotoProfil ? (
+              <Image source={{ uri: getProfilePhotoUrl(user.fotoProfil) }} style={styles.profilePhoto} />
+            ) : (
+              <Avatar.Icon size={80} icon="account" style={styles.avatar} />
+            )}
+            <Text style={styles.username}>{user ? user.email : t('default_user')}</Text>
+            {IS_DEVELOPMENT && <Text style={styles.devBadge}>{t('dev_mode')}</Text>}
+            <IconButton
+              icon="account-edit"
+              size={24}
+              onPress={() => navigation.navigate('EditProfile')}
+              style={styles.editProfileButton}
+            />
           </View>
 
           <Divider style={styles.divider} />
@@ -85,22 +112,22 @@ export default function ProfileScreen() {
           <View style={styles.content}>
             {renderProfileItem(
               <Avatar.Icon size={40} icon="phone" style={styles.fieldIcon} />,
-              'No Teleponnn',
+              t('phone_number'),
               profileData.noTelepon
             )}
             {renderProfileItem(
               <Avatar.Icon size={40} icon="email" style={styles.fieldIcon} />,
-              'Email',
+              t('email'),
               profileData.email
             )}
             {renderProfileItem(
               <Avatar.Icon size={40} icon="gender-male-female" style={styles.fieldIcon} />,
-              'Jenis Kelamin',
+              t('gender'),
               profileData.jenisKelamin
             )}
             {renderProfileItem(
               <Avatar.Icon size={40} icon="calendar" style={styles.fieldIcon} />,
-              'Tanggal Lahir',
+              t('birth_date'),
               profileData.tanggalLahir
             )}
 
@@ -110,7 +137,7 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('Settings')}
               style={styles.settingsButton}
             >
-              Pengaturan
+              {t('settings')}
             </Button>
 
             <Button
@@ -119,26 +146,26 @@ export default function ProfileScreen() {
               onPress={() => setShowLogoutDialog(true)}
               style={styles.logoutButton}
             >
-              Logout
+              {t('logout')}
             </Button>
           </View>
         </ScrollView>
 
         <Portal>
           <Dialog visible={showLogoutDialog} onDismiss={() => setShowLogoutDialog(false)}>
-            <Dialog.Title>Konfirmasi Logout</Dialog.Title>
+            <Dialog.Title>{t('logout_confirm_title')}</Dialog.Title>
             <Dialog.Content>
-              <Text>Apakah Anda yakin ingin keluar dari aplikasi?</Text>
+              <Text>{t('logout_confirm_text')}</Text>
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={() => setShowLogoutDialog(false)}>Batal</Button>
-              <Button 
+              <Button onPress={() => setShowLogoutDialog(false)}>{t('cancel')}</Button>
+              <Button
                 mode="contained"
                 onPress={handleLogout}
                 loading={loading}
                 disabled={loading}
               >
-                Logout
+                {t('logout')}
               </Button>
             </Dialog.Actions>
           </Dialog>
@@ -147,6 +174,7 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -221,5 +249,21 @@ const styles = StyleSheet.create({
   logoutButton: {
     backgroundColor: '#B00020',
     borderRadius: 8,
+  },
+  editButton: {
+    margin: 0,
+  },
+  editProfileButton: {
+    position: 'absolute',
+    top: 24,
+    right: 24,
+    backgroundColor: '#3892c620',
+  },
+  profilePhoto: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 16,
+    backgroundColor: '#E1E1E1',
   },
 }); 
