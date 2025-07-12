@@ -7,35 +7,28 @@
   "vibration": "Vibration",
   "app_version": "App Version",
   "about": "About",
-
   "default_user": "Azizah Salsa",
   "dev_mode": "Development Mode",
   "phone_number": "Phone Number",
   "email": "Email",
   "gender": "Gender",
   "birth_date": "Birth Date",
-  "settings": "Settings",
   "logout": "Logout",
   "logout_confirm_title": "Logout Confirmation",
   "logout_confirm_text": "Are you sure you want to logout?",
-  "cancel": "Cancel",
-
   "loading_map": "Loading map...",
   "location_permission_required": "Location permission is required for this feature",
   "location_fetch_failed": "Failed to get location. Using default location.",
   "location_save_failed": "Failed to save location. Make sure the coordinates are valid.",
   "task_location": "Task Location",
   "drag_to_change": "Tap on the map or drag the pin to select a location",
-  "cancel": "Cancel",
   "save_location": "Save Location",
   "error": "Error",
-
   "start": "Start",
   "end": "End",
-   "to": "to",
+  "to": "to",
   "fetch_failed": "Failed to fetch task data",
   "no_tasks_for_week": "No tasks for the week of {{date}}",
-
   "status": "Status",
   "completed": "Completed",
   "not_completed": "Not Completed",
@@ -45,7 +38,6 @@
   "priority": "Priority",
   "description": "Description",
   "location": "Location",
-  "task_location": "Task Location",
   "complete_task": "Complete Task",
   "delete_task": "Delete Task",
   "loading_task_details": "Loading task details...",
@@ -55,11 +47,6 @@
   "error_fetching_task": "Failed to fetch task details.",
   "error_completing_task": "Failed to complete the task.",
   "error_deleting_task": "Failed to delete the task.",
-  
-   "ongoing": "Ongoing",
-  "days": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-
   "login": {
     "title": "Login to TugasKu",
     "email": "Email",
@@ -72,7 +59,6 @@
     "error_empty_fields": "Email and password must be filled",
     "error_generic": "Login failed. Please try again."
   },
-
   "register": {
     "title": "Register TugasKu",
     "phone": "Phone Number",
@@ -98,13 +84,11 @@
       "errorPasswordMismatch": "Passwords do not match."
     }
   },
-
   "dashboard": {
     "completedTasks": "Completed Tasks",
     "pendingTasks": "Pending Tasks"
   },
-
-   "tabBar": {
+  "tabBar": {
     "agenda": "Agenda",
     "riwayat": "History",
     "tambah": "Add",
@@ -114,15 +98,37 @@
   "header": {
     "title": "MyTasks"
   },
-
-   "taskTitle": "Task Title",
-  "taskDate": "Task Date",
-  "taskTime": "Task Time",
-
- "priority_tinggi": "High",
-  "priority_sedang": "Medium",
-  "priority_rendah": "Low",
-
+  "notification": {
+    "loading": "Loading notifications...",
+    "no_notifications": "No notifications",
+    "error_fetching": "Failed to load notifications. Please try again.",
+    "user_data_not_found": "User data not found"
+  },
+  "datePicker": {
+    "selectDate": "Select Date"
+  },
+  "agenda": {
+    "ongoing": "Ongoing"
+  },
+  "sun": "Sun",
+  "mon": "Mon",
+  "tue": "Tue",
+  "wed": "Wed",
+  "thu": "Thu",
+  "fri": "Fri",
+  "sat": "Sat",
+  "jan": "January",
+  "feb": "February",
+  "mar": "March",
+  "apr": "April",
+  "may": "May",
+  "jun": "June",
+  "jul": "July",
+  "aug": "August",
+  "sep": "September",
+  "oct": "October",
+  "nov": "November",
+  "dec": "December",
   "task": {
     "info": "Task Information",
     "title": "Task Title",
@@ -144,6 +150,10 @@
     "sedang": "Medium",
     "tinggi": "High"
   },
+  "priority_tinggi": "High",
+  "priority_sedang": "Medium",
+  "priority_rendah": "Low",
+  "priorityLabel": "Priority",
   "reminder": {
     "none": "No reminder",
     "5m": "5 minutes before",
@@ -152,15 +162,20 @@
     "1h": "1 hour before",
     "1d": "1 day before",
     "custom": "Custom...",
-    "helper": "Choose when you'd like to be reminded about this task."
+    "helper": "Choose when you'd like to be reminded about this task.",
+    "future_required": "Reminder time must be in the future!",
+    "select": "Select Reminder",
+    "select_time": "Select Reminder Time"
   },
   "photo": {
     "take": "Take Photo",
     "pick": "Pick from Gallery",
     "success": "Photo selected successfully!",
-    "fail": "Failed to pick photo. Please try again."
+    "fail": "Failed to pick photo. Please try again.",
+    "optional": "Photo (Optional)"
   },
   "location": {
+    "label": "Location",
     "optional": "Location (Optional)",
     "add": "Add Location",
     "change": "Change Location",
@@ -173,77 +188,30 @@
     "userNotFound": "User ID not found",
     "userNotAvailable": "User ID is not available",
     "save": "Save",
-    "clear": "Clear"
-  },
-
-  "datePicker": {
-    "selectDate": "Select Date"
-  },
-  "task": {
-    "priority": "Priority"
-  },
-  "agenda": {
-    "ongoing": "Ongoing"
-  },
-  "common": {
-    "cancel": "Cancel",
+    "clear": "Clear",
     "select": "Select"
   },
-
-  "notification": {
-    "loading": "Loading notifications...",
-    "no_notifications": "No notifications",
-    "error_fetching": "Failed to load notifications. Please try again.",
-    "user_data_not_found": "User data not found"
+  "extra": {
+    "show": "Show Extra Information",
+    "hide": "Hide Extra Information",
+    "title": "Extra Information",
+    "optionalNote": "This section is optional, you can add location or photo if you want."
   },
-
- "sun": "Sun",
-  "mon": "Mon",
-  "tue": "Tue",
-  "wed": "Wed",
-  "thu": "Thu",
-  "fri": "Fri",
-  "sat": "Sat",
-  "jan": "January",
-  "feb": "February",
-  "mar": "March",
-  "apr": "April",
-  "may": "May",
-  "jun": "June",
-  "jul": "July",
-  "aug": "August",
-  "sep": "September",
-  "oct": "October",
-  "nov": "November",
-  "dec": "December",
-  "ongoing": "Ongoing",
-  "select_date": "Select Date",
-  "cancel": "Cancel",
-  "confirm": "Confirm",
-  "task_priority": "Priority",
-  "task_time": "Time",
-  "task_title": "Task Title",
-
-  "loading_task_details": "Loading task details...",
-  "task_not_found": "Task not found",
-  "status": "Status",
-  "completed": "Completed",
-  "not_completed": "Not completed",
-  "task_completed_successfully": "Task completed successfully",
-  "error_fetching_task": "Error fetching task data",
-  "task_deleted_successfully": "Task deleted successfully",
-  "error_completing_task": "Error completing task",
-  "error_deleting_task": "Error deleting task",
-  "time": "Time",
-  "start_time": "Start Time",
-  "end_time": "End Time",
-  "priority": "Priority",
-  "description": "Description",
-  "location": "Location",
-  "complete_task": "Complete Task",
-  "delete_task": "Delete Task",
-  "priority_tinggi": "High",
-  "priority_sedang": "Medium",
-  "priority_rendah": "Low",
-  "task_location": "Task Location"
+  "profile": {
+    "edit": "Edit Profile",
+    "personal_info": "Personal Information",
+    "save_success": "Profile updated successfully!",
+    "save_error": "Failed to update profile"
+  },
+  "password": {
+    "change": "Change Password",
+    "current": "Current Password",
+    "new": "New Password",
+    "confirm": "Confirm New Password",
+    "validation": {
+      "current_required": "Current password is required to change password",
+      "length": "Password must be at least 6 characters",
+      "mismatch": "New passwords do not match"
+    }
+  }
 }

@@ -84,6 +84,72 @@ class AuthService {
     await AsyncStorage.setItem('auth_token', this.DEV_TOKEN);
     return true;
   }
+
+  async updateUser(id, userData) {
+    try {
+      let imageUrl = userData.photo;
+
+      // Jika ada foto baru yang diupload
+      if (userData.photo && userData.photo.startsWith('file://')) {
+        const formData = new FormData();
+        const photoName = userData.photo.split('/').pop();
+        const match = /\.(\w+)$/.exec(photoName);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+        formData.append('file', {
+          uri: userData.photo,
+          name: photoName,
+          type
+        });
+
+        // Upload foto terlebih dahulu
+        const uploadResponse = await axiosInstance.post(ENDPOINTS.UPLOAD_FILE, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
+
+        // Cek struktur response upload
+        let uploadedUrl = null;
+        if (uploadResponse?.data?.fileDownloadUri) {
+          uploadedUrl = uploadResponse.data.fileDownloadUri;
+        } else if (uploadResponse?.data?.url) {
+          uploadedUrl = uploadResponse.data.url;
+        } else if (uploadResponse?.data?.file) {
+          uploadedUrl = uploadResponse.data.file;
+        } else if (uploadResponse?.data?.filename) {
+          uploadedUrl = uploadResponse.data.filename;
+        } else if (uploadResponse?.data?.fileName) {
+          uploadedUrl = uploadResponse.data.fileName;
+        } else if (typeof uploadResponse?.data === 'string') {
+          uploadedUrl = uploadResponse.data;
+        } else if (uploadResponse?.url) {
+          uploadedUrl = uploadResponse.url;
+        } else if (uploadResponse?.file) {
+          uploadedUrl = uploadResponse.file;
+        } else if (uploadResponse?.fileName) {
+          uploadedUrl = uploadResponse.fileName;
+        }
+
+        if (!uploadedUrl) {
+          throw new Error('Upload foto gagal: Struktur response tidak sesuai. Response: ' + JSON.stringify(uploadResponse));
+        }
+        imageUrl = uploadedUrl;
+      }
+
+      // Update data user dengan URL foto yang baru
+      const updatedUserData = {
+        ...userData,
+        fotoProfil: imageUrl // gunakan field yang sesuai backend
+      };
+
+      const response = await axiosInstance.put(ENDPOINTS.UPDATE_USER(id), updatedUserData);
+      return response;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  }
 }
 
 export default new AuthService(); 
