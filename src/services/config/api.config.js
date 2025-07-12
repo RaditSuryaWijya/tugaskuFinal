@@ -1,12 +1,12 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'http://192.168.100.3:8081', // Ganti dengan base URL API Anda
+  BASE_URL: 'http://192.168.100.24:8081', // Ganti dengan base URL API Anda
   TIMEOUT: 30000, // 30 detik
   HEADERS: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  IMAGE_URL: 'http://192.168.100.3:8081/uploads/images' // Base URL untuk gambar
+  IMAGE_URL: 'http://192.168.100.24:8081/uploads/images' // Base URL untuk gambar
 };
 
 // API Endpoints
@@ -35,7 +35,6 @@ export const ENDPOINTS = {
   // User
   USER_PROFILE: 'api/user/profile',
   USER_UPDATE: 'api/user/profile',
-  UPDATE_USER: (id) => `api/users/${id}`,  
   
   // Notifications
   NOTIFICATIONS: 'api/notifikasi',

@@ -128,16 +128,10 @@ export default function BottomNavigation() {
     <Tab.Navigator
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
-        headerShown: true, // Selalu tampilkan header di semua tab, termasuk Profil
+        headerShown: false,
         headerShadowVisible: false,
-        headerTitle: () => (
-          <View style={styles.headerContainer}>
-            <Logo />
-            <Text style={styles.headerTitle}>TugasKu</Text>
-          </View>
-        ),
         headerStyle: {
-          height: 85,
+          height: 50,
           backgroundColor: '#E8F4FD',
         },
       }}
@@ -154,7 +148,7 @@ export default function BottomNavigation() {
             ProfileScreen
           }
           options={{
-            // headerShown: name !== 'Profil', // DIHAPUS AGAR HEADER MUNCUL DI PROFIL
+            headerShown: name !== 'Profil',
             headerShadowVisible: false,
             headerTitle: () => (
               <View style={styles.headerContainer}>

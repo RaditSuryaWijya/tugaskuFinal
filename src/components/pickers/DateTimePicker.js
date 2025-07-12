@@ -3,8 +3,7 @@ import { View, Platform, TouchableOpacity, StyleSheet } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
-import { id, enUS } from 'date-fns/locale';
-import { useTranslation } from 'react-i18next';
+import { id } from 'date-fns/locale';
 
 export default function CustomDateTimePicker({ 
   value, 
@@ -12,9 +11,6 @@ export default function CustomDateTimePicker({
   mode = 'datetime',
   label
 }) {
-  const { i18n } = useTranslation();
-  const currentLocale = i18n.language === 'id' ? id : enUS;
-
   const [show, setShow] = useState(false);
   const [tempDate, setTempDate] = useState(value);
   const [currentMode, setCurrentMode] = useState(mode === 'datetime' ? 'date' : mode);
@@ -30,11 +26,14 @@ export default function CustomDateTimePicker({
 
     if (selectedDate) {
       if (mode === 'datetime' && currentMode === 'date') {
+        // Jika mode datetime dan baru selesai memilih tanggal
         setTempDate(selectedDate);
         setCurrentMode('time');
         setShow(true);
       } else {
+        // Jika mode time atau sudah selesai memilih waktu
         if (mode === 'datetime') {
+          // Gabungkan tanggal dari tempDate dengan waktu dari selectedDate
           const finalDate = new Date(tempDate);
           finalDate.setHours(selectedDate.getHours());
           finalDate.setMinutes(selectedDate.getMinutes());
@@ -50,11 +49,11 @@ export default function CustomDateTimePicker({
 
   const formatDateTime = (date) => {
     if (mode === 'time') {
-      return format(date, 'HH:mm', { locale: currentLocale });
+      return format(date, 'HH:mm', { locale: id });
     } else if (mode === 'date') {
-      return format(date, 'dd MMMM yyyy', { locale: currentLocale });
+      return format(date, 'dd MMMM yyyy', { locale: id });
     } else {
-      return format(date, 'dd MMMM yyyy HH:mm', { locale: currentLocale });
+      return format(date, 'dd MMMM yyyy HH:mm', { locale: id });
     }
   };
 

@@ -8,7 +8,7 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, { Marker } from 'react-native-maps';
 import { format } from 'date-fns';
-import { id, enUS } from 'date-fns/locale';
+import { id } from 'date-fns/locale';
 import { Menu, List, Portal, Dialog, RadioButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -35,13 +35,12 @@ export default function AddTaskScreen({ navigation, route }) {
     priority: 'sedang',
   };
 
-  const { t, i18n } = useTranslation();
-  const currentLocale = i18n.language === 'id' ? id : enUS;
+  const { t } = useTranslation();
   const [taskData, setTaskData] = useState(initialFormState);
   const [showExtra, setShowExtra] = useState(false);
   const formatDisplayDateTime = (date) => {
     try {
-      return format(new Date(date), 'EEEE, dd MMMM yyyy HH:mm', { locale: currentLocale });
+      return format(new Date(date), 'EEEE, dd MMMM yyyy HH:mm', { locale: id });
     } catch (error) {
       console.error('Error formatting date:', error);
       return '';

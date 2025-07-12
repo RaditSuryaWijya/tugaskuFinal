@@ -672,20 +672,6 @@ export default function AgendaScreen({ navigation, route }) {
     }
   };
 
-  // Helper untuk mapping prioritas
-  const getPriorityKey = (prioritas) => {
-    if (!prioritas) return 'sedang';
-    const map = {
-      tinggi: 'tinggi',
-      high: 'tinggi',
-      sedang: 'sedang',
-      medium: 'sedang',
-      rendah: 'rendah',
-      low: 'rendah'
-    };
-    return map[prioritas.toLowerCase()] || 'sedang';
-  };
-
   return (
     <TouchableOpacity
       key={task.id}
@@ -697,7 +683,7 @@ export default function AgendaScreen({ navigation, route }) {
       
       {/* Localizing the priority label */}
       <Text style={styles.taskPriority}>
-        {t('priorityLabel')}: {t(`priority.${getPriorityKey(task.prioritas)}`)}
+        {t('priority')}: {t(`priority_${task.prioritas.toLowerCase()}`)}
       </Text>
       
       {/* Localizing the start and end times */}
@@ -744,8 +730,8 @@ export default function AgendaScreen({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          {/* HAPUS JUDUL ONGOING DI ATAS KALENDER */}
-          {/* <Text style={styles.headerTitle}>{t('ongoing')}</Text> */}
+          <Text style={styles.headerTitle}>{t('ongoing')}</Text>
+
           <View style={styles.yearDisplay}>{renderYearStrip()}</View>
           <View style={styles.monthDisplay}>{renderMonthStrip()}</View>
         </View>
