@@ -51,11 +51,6 @@
           "locationWhenInUsePermission": "TugasKu memerlukan akses lokasi untuk menambahkan lokasi pada tugas Anda."
         }
       ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "58da4dfd-c0cd-4f9c-a7db-dd28fdc7b8bf"
-      }
-    }
+    ]
   }
 }

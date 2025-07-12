@@ -8,7 +8,6 @@ import { format } from 'date-fns';
 import { id, enUS } from 'date-fns/locale';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../services';
-import { API_CONFIG } from '../services/config/api.config';
 
 export default function EditProfileScreen({ navigation }) {
   const { t, i18n } = useTranslation();
@@ -162,11 +161,13 @@ export default function EditProfileScreen({ navigation }) {
     }
   };
 
+  const BASE_IMAGE_URL = 'http://192.168.100.3:8081/uploads/images';
+
   const getProfilePhotoUrl = (fotoProfil) => {
     if (!fotoProfil) return null;
     if (fotoProfil.startsWith('http')) return fotoProfil;
     if (fotoProfil.startsWith('file://')) return fotoProfil;
-    return `${API_CONFIG.IMAGE_URL}/${fotoProfil}`;
+    return `${BASE_IMAGE_URL}/${fotoProfil}`;
   };
 
   return (
