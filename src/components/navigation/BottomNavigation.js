@@ -14,30 +14,30 @@ const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
 
 const Logo = () => (
-  <View style={styles.logoContainer}>
-    <Text style={styles.logoText}>T</Text>
-  </View>
-);
+    <View style={styles.logoContainer}>
+      <Text style={styles.logoText}>T</Text>
+    </View>
+  );
 
 const TabButton = ({ label, isFocused, onPress, iconName }) => {
   const translateYValue = useRef(new Animated.Value(0)).current;
   const scaleValue = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.spring(translateYValue, {
+      Animated.parallel([
+        Animated.spring(translateYValue, {
         toValue: isFocused ? -20 : 0,
-        useNativeDriver: true,
-        friction: 6,
-        tension: 40,
-      }),
-      Animated.spring(scaleValue, {
+          useNativeDriver: true,
+          friction: 6,
+          tension: 40,
+        }),
+        Animated.spring(scaleValue, {
         toValue: isFocused ? 1.2 : 1,
-        useNativeDriver: true,
-        friction: 6,
-        tension: 40,
-      }),
-    ]).start();
+          useNativeDriver: true,
+          friction: 6,
+          tension: 40,
+        }),
+      ]).start();
   }, [isFocused]);
 
   return (
@@ -155,19 +155,19 @@ export default function BottomNavigation() {
           }
           options={{
             // headerShown: name !== 'Profil', // DIHAPUS AGAR HEADER MUNCUL DI PROFIL
-            headerShadowVisible: false,
-            headerTitle: () => (
-              <View style={styles.headerContainer}>
-                <Logo />
+        headerShadowVisible: false,
+        headerTitle: () => (
+          <View style={styles.headerContainer}>
+            <Logo />
                 <Text style={styles.headerTitle}>{t('header.title')}</Text>
-              </View>
-            ),
-            headerStyle: {
-              height: 85,
+          </View>
+        ),
+        headerStyle: {
+          height: 85,
               backgroundColor: '#E8F4FD',
-            },
-          }}
-        />
+          },
+        }}
+      />
       ))}
     </Tab.Navigator>
   );

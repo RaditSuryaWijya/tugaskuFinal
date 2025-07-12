@@ -29,7 +29,7 @@
   "to": "s/d",
   "fetch_failed": "Gagal mengambil data tugas",
   "no_tasks_for_week": "Tidak ada tugas untuk minggu {{date}}",
-  "status": "Status",
+   "status": "Status",
   "completed": "Selesai",
   "not_completed": "Belum Selesai",
   "time": "Waktu",
@@ -59,7 +59,7 @@
     "error_empty_fields": "Email dan kata sandi harus diisi",
     "error_generic": "Gagal Masuk. Silakan coba lagi."
   },
-  "register": {
+   "register": {
     "title": "Register TugasKu",
     "phone": "Phone Number",
     "phonePlaceholder": "+628 52 657-9999",
@@ -88,7 +88,7 @@
     "completedTasks": "Tugas Selesai",
     "pendingTasks": "Tugas Belum Selesai"
   },
-  "tabBar": {
+   "tabBar": {
     "agenda": "Agenda",
     "riwayat": "Riwayat",
     "tambah": "Tambah",
@@ -129,7 +129,7 @@
   "oct": "Oktober",
   "nov": "November",
   "dec": "Desember",
-  "task": {
+   "task": {
     "info": "Informasi Tugas",
     "title": "Judul Tugas",
     "description": "Deskripsi",

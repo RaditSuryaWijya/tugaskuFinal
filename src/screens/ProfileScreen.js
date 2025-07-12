@@ -95,7 +95,7 @@ export default function ProfileScreen() {
             {user && user.fotoProfil ? (
               <Image source={{ uri: getProfilePhotoUrl(user.fotoProfil) }} style={styles.profilePhoto} />
             ) : (
-              <Avatar.Icon size={80} icon="account" style={styles.avatar} />
+            <Avatar.Icon size={80} icon="account" style={styles.avatar} />
             )}
             <Text style={styles.username}>{user ? user.email : t('default_user')}</Text>
             {IS_DEVELOPMENT && <Text style={styles.devBadge}>{t('dev_mode')}</Text>}
@@ -159,7 +159,7 @@ export default function ProfileScreen() {
             </Dialog.Content>
             <Dialog.Actions>
               <Button onPress={() => setShowLogoutDialog(false)}>{t('cancel')}</Button>
-              <Button
+              <Button 
                 mode="contained"
                 onPress={handleLogout}
                 loading={loading}

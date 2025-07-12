@@ -306,21 +306,21 @@ export default function AgendaScreen({ navigation, route }) {
     setTempDate(selectedDate);
   };
 
-  const updateDate = (type, value) => {
-    let newDate = new Date(tempDate);
-    switch (type) {
-      case "year":
-        newDate = setYear(newDate, value);
-        break;
-      case "month":
-        newDate = setMonth(newDate, value);
-        break;
-      case "date":
-        newDate = setDate(newDate, value);
-        break;
-    }
-    setTempDate(newDate);
-  };
+    const updateDate = (type, value) => {
+      let newDate = new Date(tempDate);
+      switch (type) {
+        case "year":
+          newDate = setYear(newDate, value);
+          break;
+        case "month":
+          newDate = setMonth(newDate, value);
+          break;
+        case "date":
+          newDate = setDate(newDate, value);
+          break;
+      }
+      setTempDate(newDate);
+    };
 
   const CustomDatePicker = () => {
     return (
@@ -404,10 +404,10 @@ export default function AgendaScreen({ navigation, route }) {
                       {HARI[dayIndex]}  {/* Use localized day names from HARI */}
                     </Text>
                   </TouchableOpacity>
-                );
+                  );
               })}
             </ScrollView>
-          </View>
+            </View>
 
           <View style={styles.buttonContainer}>
             <Button
@@ -479,13 +479,13 @@ export default function AgendaScreen({ navigation, route }) {
       endMinute = 0;
     }
     return {
-      ...t,
-      id: t.idTugas || t.id || idx,
-      judulTugas: t.judulTugas,
-      prioritas: t.kategori,
+    ...t,
+    id: t.idTugas || t.id || idx,
+    judulTugas: t.judulTugas,
+    prioritas: t.kategori,
       waktuMulai,
       waktuSelesai,
-      warna: getColorByKategori(t.kategori),
+    warna: getColorByKategori(t.kategori),
       startHour,
       startMinute,
       endHour,
@@ -494,31 +494,31 @@ export default function AgendaScreen({ navigation, route }) {
   };
 
   // Fetch tasks
-  const fetchTasks = async () => {
-    try {
-      setTasks([]);
-      const userData = await AsyncStorage.getItem("user");
-      const user = userData ? JSON.parse(userData) : null;
-      const idUser = user?.idUser;
-      if (!idUser) return;
-      const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const response = await taskService.getTugasByUserAndDate(
-        idUser,
-        dateStr
-      );
-      const transformed = Array.isArray(response.data)
-        ? response.data.map((t, idx) => transformTask(t, idx))
-        : [];
-      setTasks(transformed);
-    } catch (error) {
-      setTasks([]);
-      if (error?.response?.status && error.response.status === 404) {
-        // Tidak ada tugas
-      } else {
-        console.error("Error fetching tasks:", error);
+    const fetchTasks = async () => {
+      try {
+        setTasks([]);
+        const userData = await AsyncStorage.getItem("user");
+        const user = userData ? JSON.parse(userData) : null;
+        const idUser = user?.idUser;
+        if (!idUser) return;
+        const dateStr = format(selectedDate, "yyyy-MM-dd");
+        const response = await taskService.getTugasByUserAndDate(
+          idUser,
+          dateStr
+        );
+        const transformed = Array.isArray(response.data)
+          ? response.data.map((t, idx) => transformTask(t, idx))
+          : [];
+        setTasks(transformed);
+      } catch (error) {
+        setTasks([]);
+        if (error?.response?.status && error.response.status === 404) {
+          // Tidak ada tugas
+        } else {
+          console.error("Error fetching tasks:", error);
+        }
       }
-    }
-  };
+    };
 
   // Update month dates ketika year atau month berubah
   useEffect(() => {
@@ -686,14 +686,14 @@ export default function AgendaScreen({ navigation, route }) {
     return map[prioritas.toLowerCase()] || 'sedang';
   };
 
-  return (
+    return (
     <TouchableOpacity
-      key={task.id}
+        key={task.id}
       onPress={() => navigation.navigate('DetailTask', { id: task.id })}
       activeOpacity={0.8}
-      style={[styles.taskCard, { backgroundColor: task.warna }]}
-    >
-      <Text style={styles.taskTitle}>{task.judulTugas}</Text>
+        style={[styles.taskCard, { backgroundColor: task.warna }]}
+      >
+        <Text style={styles.taskTitle}>{task.judulTugas}</Text>
       
       {/* Localizing the priority label */}
       <Text style={styles.taskPriority}>
@@ -701,12 +701,12 @@ export default function AgendaScreen({ navigation, route }) {
       </Text>
       
       {/* Localizing the start and end times */}
-      <Text style={styles.taskTime}>
+        <Text style={styles.taskTime}>
         {t('start_time')}: {formatDateTime(task.waktuMulai)} - {t('end_time')}: {formatDateTime(task.waktuSelesai)}
-      </Text>
+        </Text>
     </TouchableOpacity>
-  );
-};
+    );
+  };
 
 
 
