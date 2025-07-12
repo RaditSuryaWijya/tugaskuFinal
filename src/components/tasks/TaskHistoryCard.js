@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Surface, Text, Chip } from 'react-native-paper';
+import { Surface, Text } from 'react-native-paper';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { id, enUS } from 'date-fns/locale'; // Import both locales
+import { useTranslation } from 'react-i18next'; // For language detection
 
 const priorityColors = {
   tinggi: '#DC3545',
@@ -11,6 +12,8 @@ const priorityColors = {
 };
 
 export default function TaskHistoryCard({ task, onPress }) {
+  const { i18n } = useTranslation(); // Access current language
+
   const {
     title,
     prioritas,
@@ -21,11 +24,13 @@ export default function TaskHistoryCard({ task, onPress }) {
 
   const backgroundColor = priorityColors[prioritas.toLowerCase()] || '#28A745';
 
-  // Format tanggal ke format Indonesia, misal: 12 Juni 2024
+  // Pilih locale berdasarkan bahasa aktif
+  const currentLocale = i18n.language === 'id' ? id : enUS;
+
   let formattedDate = '-';
   if (date) {
     try {
-      formattedDate = format(new Date(date), "d MMMM yyyy", { locale: id });
+      formattedDate = format(new Date(date), "d MMMM yyyy", { locale: currentLocale });
     } catch (e) {
       formattedDate = date;
     }
@@ -37,11 +42,14 @@ export default function TaskHistoryCard({ task, onPress }) {
         <View style={styles.content}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
             <Text style={[styles.title, { color: '#fff' }]}>{title}</Text>
-
           </View>
           <View style={styles.infoRow}>
-            <Text style={[styles.time, { color: '#fff' }]}>{startTime} - {endTime}</Text>
-            <Text style={[styles.date, { color: '#fff' }]}>{formattedDate}</Text>
+            <Text style={[styles.time, { color: '#fff' }]}>
+              {startTime} - {endTime}
+            </Text>
+            <Text style={[styles.date, { color: '#fff' }]}>
+              {formattedDate}
+            </Text>
           </View>
         </View>
       </Surface>
@@ -69,14 +77,6 @@ const styles = StyleSheet.create({
     color: '#222',
     marginRight: 8,
   },
-  chip: {
-    height: 24,
-    borderRadius: 8,
-    marginLeft: 4,
-    paddingHorizontal: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -92,4 +92,4 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#666',
   },
-}); 
+});

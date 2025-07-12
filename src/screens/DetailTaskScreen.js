@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView, Image, ActivityIndicator, Dimensions, Text } from 'react-native';
 import { Surface, Divider, Button, Snackbar } from 'react-native-paper';
 import { format as formatDateFns, parseISO, parse } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { id as locale_id, enUS as locale_en } from 'date-fns/locale';
 import { API_CONFIG } from '../services/config/api.config';
 import MapView, { Marker } from 'react-native-maps';
 import { taskService } from '../services';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 const windowWidth = Dimensions.get('window').width;
 const imageWidth = windowWidth - 64;
@@ -27,13 +28,16 @@ export default function DetailTaskScreen({ route, navigation }) {
   const [error, setError] = useState(null);
   const { id } = route.params;
 
+  const { t, i18n } = useTranslation();
+  const currentLocale = i18n.language === 'id' ? locale_id : locale_en;
+
   useEffect(() => {
     const fetchTask = async () => {
       try {
         setLoading(true);
         setError(null);
         const response = await taskService.getTugasById(id);
-        if (!response || !response.data) throw new Error('Tugas tidak ditemukan');
+        if (!response || !response.data) throw new Error(t('task_not_found'));
         const task = response.data;
         setTaskData({
           id: task.idTugas || task.id,
@@ -48,111 +52,101 @@ export default function DetailTaskScreen({ route, navigation }) {
           statusTugas: task.statusTugas
         });
       } catch (e) {
-        setError('Gagal mengambil detail tugas.');
+        setError(t('error_fetching_task'));
         setTaskData(null);
       } finally {
         setLoading(false);
       }
     };
     fetchTask();
-  }, [id]);
+  }, [id, t]);
 
-  // Debug log untuk melihat data yang diterima
-  console.log('Data task yang diterima:', taskData);
-
-  // Mapping data dari API ke format yang dibutuhkan
-  // const taskData = {
-  //   id: task.id || task.idTugas,
-  //   title: task.judulTugas || task.title || '',
-  //   description: task.deskripsi || task.description || '',
-  //   prioritas: task.kategori || task.prioritas || 'sedang',
-  //   startTime: task.tanggalMulai || task.startTime || '',
-  //   endTime: task.tanggalAkhir || task.endTime || '',
-  //   completed: task.status === 'Selesai' || task.completed || false,
-  //   location: task.lokasi || task.location || null,
-  //   photo: task.foto || task.photo || null
-  // };
-
-  // Tentukan warna berdasarkan prioritas
   const backgroundColor = priorityColors[taskData?.prioritas.toLowerCase()] || '#6C757D';
+
+  const formatDateTime = (dateTimeStr) => {
+    try {
+      if (!dateTimeStr) return '';
+      let date;
+      if (typeof dateTimeStr === 'string' && dateTimeStr.includes('-') && dateTimeStr.includes(' ')) {
+        const [datePart, timePart] = dateTimeStr.split(' ');
+        const [day, month, year] = datePart.split('-');
+        const [hours, minutes] = timePart.split(':');
+        date = new Date(year, month - 1, day, hours, minutes);
+      } else if (typeof dateTimeStr === 'string' && dateTimeStr.includes('T')) {
+        date = new Date(dateTimeStr);
+      } else {
+        date = new Date(dateTimeStr);
+      }
+      if (!date || isNaN(date.getTime())) return dateTimeStr;
+      return formatDateFns(date, 'dd MMMM yyyy HH:mm', { locale: currentLocale });
+    } catch (error) {
+      return dateTimeStr;
+    }
+  };
+
+  const getImageUrl = (photo) => {
+    if (!photo) return null;
+    if (photo.startsWith('http')) return photo;
+    return `${API_CONFIG.IMAGE_URL}/${photo}`;
+  };
+
+  const getCoordinates = (location) => {
+    try {
+      if (!location) return null;
+      if (location.coordinates && typeof location.coordinates === 'string') {
+        const [lat, lng] = location.coordinates.split(',').map(Number);
+        return { latitude: lat, longitude: lng };
+      }
+      if (typeof location === 'string' && location.includes(',')) {
+        const [lat, lng] = location.split(',').map(Number);
+        return { latitude: lat, longitude: lng };
+      }
+      if (location.latitude && location.longitude) {
+        return { latitude: Number(location.latitude), longitude: Number(location.longitude) };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  const coordinates = getCoordinates(taskData?.location);
 
   const handleCompleteTask = async () => {
     try {
       setLoading(true);
-      
-      // Fungsi untuk mengkonversi format tanggal
-      const convertToISODateTime = (dateTimeStr) => {
-        try {
-          // Jika sudah dalam format ISO, langsung kembalikan
-          if (dateTimeStr.includes('T')) {
-            return dateTimeStr;
-          }
-          
-          // Parse dari format "DD-MM-YYYY HH:mm" ke Date object
-          const parsedDate = parse(dateTimeStr, 'dd-MM-yyyy HH:mm', new Date());
-          
-          // Format ke ISO string dan ambil bagian yang relevan
-          return parsedDate.toISOString().split('.')[0];
-        } catch (error) {
-          console.error('Error converting date:', error);
-          return dateTimeStr;
-        }
+      const convertToISO = (str) => {
+        if (str.includes('T')) return str;
+        const parsed = parse(str, 'dd-MM-yyyy HH:mm', new Date());
+        return parsed.toISOString().split('.')[0];
       };
-
-      // Format data untuk API
-      const updateData = {
+      const data = {
         idTugas: taskData.id,
         judulTugas: taskData.title,
         deskripsi: taskData.description,
         kategori: taskData.prioritas,
-        tanggalMulai: convertToISODateTime(taskData.startTime),
-        tanggalAkhir: convertToISODateTime(taskData.endTime),
+        tanggalMulai: convertToISO(taskData.startTime),
+        tanggalAkhir: convertToISO(taskData.endTime),
         statusTugas: 'Selesai',
-        lokasi: typeof taskData.location === 'string' ? 
-          taskData.location : 
-          (taskData.location?.coordinates || `${taskData.location?.latitude},${taskData.location?.longitude}`),
+        lokasi: typeof taskData.location === 'string' ? taskData.location :
+          taskData.location?.coordinates || `${taskData.location?.latitude},${taskData.location?.longitude}`,
         foto: taskData.photo
       };
-
-      console.log('Mengirim data update:', updateData);
-      
-      // Panggil API untuk update status
-      const response = await taskService.updateTask(taskData.id, updateData);
-      console.log('Response update:', response);
-
-      setSnackbarMessage('Tugas berhasil diselesaikan!');
+      await taskService.updateTask(taskData.id, data);
+      setSnackbarMessage(t('task_completed_successfully'));
       setSnackbarVisible(true);
-
-      // Refresh halaman sebelumnya
-      if (route.params?.onComplete) {
-        route.params.onComplete();
-      }
-
-      // Tunggu sebentar sebelum kembali ke halaman sebelumnya
-      setTimeout(() => {
-        navigation.goBack();
-      }, 1500);
-
+      setTimeout(() => navigation.goBack(), 1500);
     } catch (error) {
-      console.error('Error completing task:', error);
-      let errorMessage = 'Gagal menyelesaikan tugas. ';
-      if (error.data?.message) {
-        errorMessage += error.data.message;
-      } else if (error.message) {
-        errorMessage += error.message;
-      }
-      setSnackbarMessage(errorMessage);
+      setSnackbarMessage(t('error_completing_task'));
       setSnackbarVisible(true);
     } finally {
       setLoading(false);
     }
   };
 
-  // Tambahkan fungsi hapus tugas dan notifikasi
   const handleDeleteTask = async () => {
     try {
       setLoading(true);
-      // Cancel notifikasi jika ada
       if (taskData?.id) {
         const notifId = await AsyncStorage.getItem(`notif_task_${taskData.id}`);
         if (notifId) {
@@ -160,143 +154,34 @@ export default function DetailTaskScreen({ route, navigation }) {
           await AsyncStorage.removeItem(`notif_task_${taskData.id}`);
         }
       }
-      // Hapus tugas dari backend
       await taskService.deleteTask(taskData.id);
-      setSnackbarMessage('Tugas berhasil dihapus!');
+      setSnackbarMessage(t('task_deleted_successfully'));
       setSnackbarVisible(true);
-      setTimeout(() => {
-        navigation.goBack();
-      }, 1500);
-    } catch (error) {
-      setSnackbarMessage('Gagal menghapus tugas.');
+      setTimeout(() => navigation.goBack(), 1500);
+    } catch {
+      setSnackbarMessage(t('error_deleting_task'));
       setSnackbarVisible(true);
+    } finally {
       setLoading(false);
     }
   };
 
-  // Format waktu
-  const formatDateTime = (dateTimeStr) => {
-    try {
-      if (!dateTimeStr) return '';
-      // Debug log
-      console.log('Input waktu yang akan diformat:', dateTimeStr);
-      let date;
-      // Handle format "DD-MM-YYYY HH:mm"
-      if (typeof dateTimeStr === 'string' && dateTimeStr.includes('-') && dateTimeStr.includes(' ')) {
-        const [datePart, timePart] = dateTimeStr.split(' ');
-        if (!datePart || !timePart) return 'Format waktu tidak valid';
-        const [day, month, year] = datePart.split('-');
-        const [hours, minutes] = timePart.split(':');
-        date = new Date(year, month - 1, day, hours, minutes);
-      }
-      // Handle format ISO
-      else if (typeof dateTimeStr === 'string' && dateTimeStr.includes('T')) {
-        date = new Date(dateTimeStr);
-      }
-      // Handle objek Date
-      else if (dateTimeStr instanceof Date) {
-        date = dateTimeStr;
-      }
-      // Handle format lainnya
-      else {
-        date = new Date(dateTimeStr);
-      }
-      // Validasi hasil parsing
-      if (!date || isNaN(date.getTime())) {
-        console.error('Hasil parsing tanggal tidak valid:', dateTimeStr);
-        return 'Format waktu tidak valid';
-      }
-      // Debug log
-      console.log('Hasil parsing waktu:', date);
-      try {
-        return formatDateFns(date, 'dd MMMM yyyy HH:mm', { locale: id });
-      } catch (err1) {
-        try {
-          return formatDateFns(date, 'dd MMMM yyyy HH:mm');
-        } catch (err2) {
-          try {
-            return date.toLocaleString('id-ID', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-          } catch (err3) {
-            return dateTimeStr;
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error formatting date:', error, 'Input:', dateTimeStr);
-      return 'Format waktu tidak valid';
-    }
-  };
-
-  // Fungsi untuk mendapatkan URL gambar
-  const getImageUrl = (photo) => {
-    if (!photo) return null;
-    if (photo.startsWith('http')) return photo;
-    return `${API_CONFIG.IMAGE_URL}/${photo}`;
-  };
-
-  // Parse koordinat dari string atau objek
-  const getCoordinates = (location) => {
-    try {
-      if (!location) return null;
-
-      // Debug log
-      console.log('Input lokasi:', location);
-
-      // Jika location adalah objek dengan coordinates (format dari API)
-      if (location.coordinates && typeof location.coordinates === 'string') {
-        const [latitude, longitude] = location.coordinates.split(',').map(coord => parseFloat(coord.trim()));
-        if (!isNaN(latitude) && !isNaN(longitude)) {
-          return { latitude, longitude };
-        }
-      }
-
-      // Jika location adalah string dengan format "latitude,longitude"
-      if (typeof location === 'string' && location.includes(',')) {
-        const [latitude, longitude] = location.split(',').map(coord => parseFloat(coord.trim()));
-        if (!isNaN(latitude) && !isNaN(longitude)) {
-          return { latitude, longitude };
-        }
-      }
-
-      // Jika location adalah objek dengan latitude dan longitude
-      if (location.latitude && location.longitude) {
-        const latitude = parseFloat(location.latitude);
-        const longitude = parseFloat(location.longitude);
-        if (!isNaN(latitude) && !isNaN(longitude)) {
-      return { latitude, longitude };
-    }
-      }
-
-      console.error('Format lokasi tidak valid:', location);
-      return null;
-    } catch (error) {
-      console.error('Error parsing coordinates:', error, 'Input:', location);
-    return null;
-    }
-  };
-
-  const coordinates = getCoordinates(taskData?.location);
-
-  // Debug log untuk koordinat
-  console.log('Koordinat yang dihasilkan:', coordinates);
-
-  // Ganti semua penggunaan taskData sesuai state baru
-  // Tampilkan loading dan error jika perlu
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={styles.centered}>
           <ActivityIndicator size="large" color="#3892c6" />
-          <Text>Memuat detail tugas...</Text>
+          <Text>{t('loading_task_details')}</Text>
         </View>
       </SafeAreaView>
     );
   }
+
   if (error || !taskData) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: 'red', fontSize: 16 }}>{error || 'Tugas tidak ditemukan'}</Text>
+        <View style={styles.centered}>
+          <Text style={{ color: 'red', fontSize: 16 }}>{error || t('task_not_found')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -307,47 +192,37 @@ export default function DetailTaskScreen({ route, navigation }) {
       <ScrollView style={styles.container}>
         <Surface style={[styles.header, { backgroundColor }]} elevation={2}>
           <Text style={styles.title}>{taskData.title}</Text>
-          <View style={styles.statusContainer}>
-            <Text style={styles.status}>
-              Status: {taskData.completed ? 'Selesai' : 'Belum Selesai'}
-            </Text>
-          </View>
+          <Text style={styles.status}>
+            {t('status')}: {taskData.completed ? t('completed') : t('not_completed')}
+          </Text>
         </Surface>
 
         <Surface style={styles.content} elevation={1}>
           {taskData.photo && (
             <View style={styles.imageContainer}>
-              {imageLoading && (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color="#3892c6" />
-                </View>
-              )}
+              {imageLoading && <ActivityIndicator size="large" color="#3892c6" />}
               <Image
                 source={{ uri: getImageUrl(taskData.photo) }}
                 style={styles.image}
                 resizeMode="cover"
                 onLoadStart={() => setImageLoading(true)}
                 onLoadEnd={() => setImageLoading(false)}
-                onError={(error) => {
-                  console.error('Error loading image:', error);
-                  setImageLoading(false);
-                }}
               />
             </View>
           )}
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Waktu</Text>
-            <Text style={styles.sectionContent}>Waktu Mulai: {formatDateTime(taskData.startTime)}</Text>
-            <Text style={styles.sectionContent}>Waktu Selesai: {formatDateTime(taskData.endTime)}</Text>
+            <Text style={styles.sectionTitle}>{t('time')}</Text>
+            <Text>{t('start_time')}: {formatDateTime(taskData.startTime)}</Text>
+            <Text>{t('end_time')}: {formatDateTime(taskData.endTime)}</Text>
           </View>
 
           <Divider style={styles.divider} />
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Prioritas</Text>
-            <View style={[styles.priorityBadge, { backgroundColor }]}>
-              <Text style={styles.priorityText}>{taskData.prioritas}</Text>
+            <Text style={styles.sectionTitle}>{t('priority')}</Text>
+            <View style={[styles.priorityBadge, { backgroundColor }]}> 
+              <Text style={styles.priorityText}>{t(`priority_${taskData.prioritas.toLowerCase()}`)}</Text>
             </View>
           </View>
 
@@ -355,8 +230,8 @@ export default function DetailTaskScreen({ route, navigation }) {
             <>
               <Divider style={styles.divider} />
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Deskripsi</Text>
-                <Text style={styles.sectionContent}>{taskData.description}</Text>
+                <Text style={styles.sectionTitle}>{t('description')}</Text>
+                <Text>{taskData.description}</Text>
               </View>
             </>
           )}
@@ -365,7 +240,7 @@ export default function DetailTaskScreen({ route, navigation }) {
             <>
               <Divider style={styles.divider} />
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Lokasi</Text>
+                <Text style={styles.sectionTitle}>{t('location')}</Text>
                 <View style={styles.mapContainer}>
                   <MapView
                     style={styles.map}
@@ -377,18 +252,10 @@ export default function DetailTaskScreen({ route, navigation }) {
                     }}
                     scrollEnabled={false}
                     zoomEnabled={false}
-                    pitchEnabled={false}
-                    rotateEnabled={false}
                   >
-                    <Marker
-                      coordinate={coordinates}
-                      title="Lokasi Tugas"
-                    />
+                    <Marker coordinate={coordinates} title={t('task_location')} />
                   </MapView>
                 </View>
-                <Text style={styles.sectionContent}>
-                  {typeof taskData.location === 'string' ? taskData.location : `${coordinates.latitude}, ${coordinates.longitude}`}
-                </Text>
               </View>
             </>
           )}
@@ -396,25 +263,11 @@ export default function DetailTaskScreen({ route, navigation }) {
 
         {!taskData.completed && taskData.statusTugas !== 'Selesai' && (
           <Surface style={styles.actionContainer} elevation={1}>
-            <Button
-              mode="contained"
-              onPress={handleCompleteTask}
-              loading={loading}
-              disabled={loading}
-              style={styles.completeButton}
-              contentStyle={styles.buttonContent}
-            >
-              {loading ? 'Memproses...' : 'Selesaikan Tugas'}
+            <Button mode="contained" onPress={handleCompleteTask} style={styles.completeButton}>
+              {t('complete_task')}
             </Button>
-            <Button
-              mode="outlined"
-              onPress={handleDeleteTask}
-              loading={loading}
-              disabled={loading}
-              style={{ marginTop: 12, borderColor: '#d32f2f' }}
-              textColor="#d32f2f"
-            >
-              Hapus Tugas
+            <Button mode="outlined" onPress={handleDeleteTask} textColor="#d32f2f" style={{ marginTop: 12 }}>
+              {t('delete_task')}
             </Button>
           </Surface>
         )}
@@ -423,7 +276,6 @@ export default function DetailTaskScreen({ route, navigation }) {
           visible={snackbarVisible}
           onDismiss={() => setSnackbarVisible(false)}
           duration={2000}
-          style={styles.snackbar}
         >
           {snackbarMessage}
         </Snackbar>
@@ -451,10 +303,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 8,
   },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   status: {
     fontSize: 16,
     color: '#fff',
@@ -473,17 +321,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     height: imageWidth * 0.75,
   },
-  loadingContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    zIndex: 1,
-  },
   image: {
     width: '100%',
     height: '100%',
@@ -496,10 +333,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#666',
     marginBottom: 8,
-  },
-  sectionContent: {
-    fontSize: 16,
-    color: '#333',
   },
   divider: {
     marginVertical: 16,
@@ -533,16 +366,5 @@ const styles = StyleSheet.create({
   completeButton: {
     backgroundColor: '#28A745',
     borderRadius: 8,
-  },
-  buttonContent: {
-    height: 48,
-  },
-  snackbar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#333',
-    borderRadius: 0,
   }
-}); 
+});

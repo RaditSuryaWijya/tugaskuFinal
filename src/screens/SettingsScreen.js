@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { Surface, List, Switch, Divider, Text, RadioButton } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n/i18n'; // pastikan path ini sesuai dengan lokasi file i18n.js kamu
 
 export default function SettingsScreen({ navigation }) {
+  const { t } = useTranslation();
+
   const [settings, setSettings] = useState({
-    language: 'id', // id = Indonesia, en = English
+    language: i18n.language || 'id',
     darkMode: false,
     notifications: true,
     soundEnabled: true,
@@ -18,22 +22,17 @@ export default function SettingsScreen({ navigation }) {
 
   const handleLanguageChange = (value) => {
     setSettings(prev => ({ ...prev, language: value }));
-    // TODO: Implement language change logic
-  };
-
-  const handleSettingToggle = (setting) => {
-    setSettings(prev => ({ ...prev, [setting]: !prev[setting] }));
-    // TODO: Implement setting change logic
+    i18n.changeLanguage(value);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Surface style={styles.surface}>
         <ScrollView>
-          <Text style={styles.title}>Pengaturan</Text>
+          <Text style={styles.title}>{t('settings')}</Text>
 
           <List.Section>
-            <List.Subheader>Bahasa</List.Subheader>
+            <List.Subheader>{t('language')}</List.Subheader>
             <RadioButton.Group 
               onValueChange={handleLanguageChange} 
               value={settings.language}
@@ -54,11 +53,10 @@ export default function SettingsScreen({ navigation }) {
             </RadioButton.Group>
           </List.Section>
 
-
           <List.Section>
-            <List.Subheader>Tentang</List.Subheader>
+            <List.Subheader>{t('about')}</List.Subheader>
             <List.Item
-              title="Versi Aplikasi"
+              title={t('app_version')}
               description="1.0.0"
               left={() => <List.Icon icon="information" />}
             />
@@ -85,4 +83,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 16,
   },
-}); 
+});

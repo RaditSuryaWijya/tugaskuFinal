@@ -17,8 +17,10 @@ import { authService } from '../../services';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 
 export default function RegisterScreen({ navigation }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     kataSandi: '',
@@ -46,19 +48,19 @@ export default function RegisterScreen({ navigation }) {
       !formData.konfirmasiKataSandi ||
       !formData.jenisKelamin
     ) {
-      setError('Semua field harus diisi');
+      setError(t('register.validation.errorEmptyFields'));
       return;
     }
 
     if (formData.kataSandi !== formData.konfirmasiKataSandi) {
-      setError('Kata sandi tidak cocok');
+      setError(t('register.validation.errorPasswordMismatch'));
       return;
     }
 
     try {
       setLoading(true);
       setError('');
-      setSnackbarMessage('Menyimpan data register...');
+      setSnackbarMessage(t('register.savingData'));
       setSnackbarVisible(true);
 
       const body = {
@@ -73,7 +75,7 @@ export default function RegisterScreen({ navigation }) {
       console.log('Register body:', body);
       await authService.register(body);
 
-      setSnackbarMessage('Registrasi berhasil!');
+      setSnackbarMessage(t('register.success'));
       setSnackbarVisible(true);
       setTimeout(() => {
         navigation.navigate('Agenda', {
@@ -83,9 +85,9 @@ export default function RegisterScreen({ navigation }) {
       }, 1200);
     } catch (error) {
       console.error('Detail error:', error);
-      let errorMessage = 'Gagal registrasi. ';
+      let errorMessage = t('register.errorGeneric');
       if (error.response) {
-        errorMessage += error.response.data?.message || 'Terjadi kesalahan pada server.';
+        errorMessage += error.response.data?.message || t('register.errorServer');
       } else if (error.message) {
         errorMessage += error.message;
       }
@@ -108,10 +110,10 @@ export default function RegisterScreen({ navigation }) {
       <Surface style={styles.surface}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
-            <Text style={styles.title}>Daftar TugasKu</Text>
+            <Text style={styles.title}>{t('register.title')}</Text>
 
             <TextInput
-              label="No Telepon"
+              label={t('register.phone')}
               value={formData.noTelepon}
               onChangeText={(text) =>
                 setFormData({ ...formData, noTelepon: text })
@@ -119,11 +121,11 @@ export default function RegisterScreen({ navigation }) {
               style={styles.input}
               mode="outlined"
               keyboardType="phone-pad"
-              placeholder="+628 52 657-9999"
+              placeholder={t('register.phonePlaceholder')}
             />
 
             <TextInput
-              label="Email"
+              label={t('register.email')}
               value={formData.email}
               onChangeText={(text) =>
                 setFormData({ ...formData, email: text })
@@ -132,11 +134,11 @@ export default function RegisterScreen({ navigation }) {
               mode="outlined"
               keyboardType="email-address"
               autoCapitalize="none"
-              placeholder="azizahsal@gmail.com"
+              placeholder={t('register.emailPlaceholder')}
             />
 
             <View style={styles.dropdownWrapper}>
-              <Text style={styles.dropdownLabel}>Jenis Kelamin</Text>
+              <Text style={styles.dropdownLabel}>{t('register.gender')}</Text>
               <Menu
                 visible={genderMenuVisible}
                 onDismiss={() => setGenderMenuVisible(false)}
@@ -147,29 +149,29 @@ export default function RegisterScreen({ navigation }) {
                     contentStyle={{ justifyContent: 'space-between' }}
                     style={styles.dropdownButton}
                   >
-                    {formData.jenisKelamin || 'Pilih jenis kelamin'}
+                    <Text>{formData.jenisKelamin || t('register.selectGender')}</Text>
                   </Button>
                 }
               >
                 <Menu.Item
                   onPress={() => {
-                    setFormData({ ...formData, jenisKelamin: 'Laki-laki' });
+                    setFormData({ ...formData, jenisKelamin: t('register.male') });
                     setGenderMenuVisible(false);
                   }}
-                  title="Laki-laki"
+                  title={<Text>{t('register.male')}</Text>}
                 />
                 <Menu.Item
                   onPress={() => {
-                    setFormData({ ...formData, jenisKelamin: 'Perempuan' });
+                    setFormData({ ...formData, jenisKelamin: t('register.female') });
                     setGenderMenuVisible(false);
                   }}
-                  title="Perempuan"
+                  title={<Text>{t('register.female')}</Text>}
                 />
               </Menu>
             </View>
 
             <TextInput
-              label="Tanggal Lahir"
+              label={t('register.dob')}
               value={format(formData.tanggalLahir, 'dd MMMM yyyy', {
                 locale: id,
               })}
@@ -185,7 +187,7 @@ export default function RegisterScreen({ navigation }) {
             />
 
             <TextInput
-              label="Kata Sandi"
+              label={t('register.password')}
               value={formData.kataSandi}
               onChangeText={(text) =>
                 setFormData({ ...formData, kataSandi: text })
@@ -202,7 +204,7 @@ export default function RegisterScreen({ navigation }) {
             />
 
             <TextInput
-              label="Konfirmasi Kata Sandi"
+              label={t('register.confirmPassword')}
               value={formData.konfirmasiKataSandi}
               onChangeText={(text) =>
                 setFormData({ ...formData, konfirmasiKataSandi: text })
@@ -227,17 +229,17 @@ export default function RegisterScreen({ navigation }) {
               loading={loading}
               disabled={loading}
             >
-              Daftar
+              {t('register.registerButton')}
             </Button>
 
             <View style={styles.loginContainer}>
-              <Text>Sudah punya akun? </Text>
+              <Text>{t('register.alreadyHaveAccount')} </Text>
               <Button
                 mode="text"
                 onPress={() => navigation.navigate('Login')}
                 style={styles.loginButton}
               >
-                Login
+                {t('register.login')}
               </Button>
             </View>
           </View>
@@ -296,27 +298,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: '#fff',
   },
-dropdownWrapper: {
-  marginBottom: 16,
-},
-
-dropdownLabel: {
-  marginBottom: 4,
-  fontSize: 12,
-  color: '#6a6a6a',
-  fontWeight: '500',
-},
-
-dropdownButton: {
-  borderWidth: 1,
-  borderColor: '#C4C4C4',
-  borderRadius: 4,
-  height: 56,
-  justifyContent: 'center',
-  paddingHorizontal: 12,
-  backgroundColor: '#fff',
-},
-
+  dropdownWrapper: {
+    marginBottom: 16,
+  },
+  dropdownLabel: {
+    marginBottom: 4,
+    fontSize: 12,
+    color: '#6a6a6a',
+    fontWeight: '500',
+  },
+  dropdownButton: {
+    borderWidth: 1,
+    borderColor: '#C4C4C4',
+    borderRadius: 4,
+    height: 56,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    backgroundColor: '#fff',
+  },
   button: {
     marginTop: 24,
     paddingVertical: 8,

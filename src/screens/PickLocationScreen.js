@@ -3,13 +3,13 @@ import { StyleSheet, View, Dimensions, Alert } from 'react-native';
 import { Button, Surface, Text, ActivityIndicator, IconButton } from 'react-native-paper';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
+import { useTranslation } from 'react-i18next';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-// Default location (Jakarta)
 const DEFAULT_LOCATION = {
   latitude: -6.200000,
   longitude: 106.816666,
@@ -18,6 +18,8 @@ const DEFAULT_LOCATION = {
 };
 
 export default function PickLocationScreen({ navigation, route }) {
+  const { t } = useTranslation();
+
   const previousLocation = route.params?.previousLocation;
   const [region, setRegion] = useState(
     previousLocation ? {
@@ -40,7 +42,7 @@ export default function PickLocationScreen({ navigation, route }) {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          setError('Izin akses lokasi diperlukan untuk fitur ini');
+          setError(t('location_permission_required'));
           setLoading(false);
           return;
         }
@@ -63,7 +65,7 @@ export default function PickLocationScreen({ navigation, route }) {
       } catch (err) {
         if (isMounted) {
           console.error('Error getting location:', err);
-          setError('Gagal mendapatkan lokasi. Menggunakan lokasi default.');
+          setError(t('location_fetch_failed'));
           setSelectedLocation(DEFAULT_LOCATION);
           setLoading(false);
         }
@@ -95,7 +97,7 @@ export default function PickLocationScreen({ navigation, route }) {
       setLoading(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Error', 'Izin akses lokasi diperlukan untuk fitur ini');
+        Alert.alert(t('error'), t('location_permission_required'));
         setLoading(false);
         return;
       }
@@ -114,7 +116,7 @@ export default function PickLocationScreen({ navigation, route }) {
       setRegion(newRegion);
       setSelectedLocation(location.coords);
     } catch (error) {
-      Alert.alert('Error', 'Gagal mendapatkan lokasi saat ini');
+      Alert.alert(t('error'), t('location_fetch_failed'));
     } finally {
       setLoading(false);
     }
@@ -123,42 +125,35 @@ export default function PickLocationScreen({ navigation, route }) {
   const handleSaveLocation = async () => {
     if (selectedLocation) {
       try {
-        // Pastikan koordinat adalah angka
         const latitude = parseFloat(selectedLocation.latitude);
         const longitude = parseFloat(selectedLocation.longitude);
 
         if (isNaN(latitude) || isNaN(longitude)) {
-          throw new Error('Koordinat tidak valid');
+          throw new Error('Invalid coordinates');
         }
 
-        // Format koordinat dengan 6 angka desimal
         const formattedLocation = {
           latitude: parseFloat(latitude.toFixed(6)),
-          longitude: parseFloat(longitude.toFixed(6))
+          longitude: parseFloat(longitude.toFixed(6)),
         };
 
-        // Coba dapatkan alamat jika memungkinkan
-      try {
+        try {
           const geocode = await Location.reverseGeocodeAsync(formattedLocation);
-        if (geocode && geocode.length > 0) {
-          const g = geocode[0];
+          if (geocode && geocode.length > 0) {
+            const g = geocode[0];
             formattedLocation.name = [g.name, g.street, g.city, g.region].filter(Boolean).join(', ');
-        }
-      } catch (e) {
+          }
+        } catch (e) {
           console.warn('Gagal mendapatkan alamat:', e);
           formattedLocation.name = `${formattedLocation.latitude}, ${formattedLocation.longitude}`;
-      }
+        }
 
-      navigation.goBack();
-      if (route.params?.onLocationSelect) {
+        navigation.goBack();
+        if (route.params?.onLocationSelect) {
           route.params.onLocationSelect(formattedLocation);
         }
       } catch (error) {
-        Alert.alert(
-          'Error',
-          'Gagal menyimpan lokasi. Pastikan koordinat yang dipilih valid.',
-          [{ text: 'OK' }]
-        );
+        Alert.alert(t('error'), t('location_save_failed'), [{ text: 'OK' }]);
       }
     }
   };
@@ -171,7 +166,7 @@ export default function PickLocationScreen({ navigation, route }) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#3892c6" />
-        <Text style={styles.loadingText}>Memuat peta...</Text>
+        <Text style={styles.loadingText}>{t('loading_map')}</Text>
       </View>
     );
   }
@@ -180,12 +175,8 @@ export default function PickLocationScreen({ navigation, route }) {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <Button 
-          mode="contained" 
-          onPress={handleCancel}
-          style={styles.button}
-        >
-          Kembali
+        <Button mode="contained" onPress={handleCancel} style={styles.button}>
+          {t('cancel')}
         </Button>
       </View>
     );
@@ -194,9 +185,7 @@ export default function PickLocationScreen({ navigation, route }) {
   return (
     <Surface style={styles.container}>
       <View style={styles.instructionContainer}>
-        <Text style={styles.instructionText}>
-          Tap pada peta untuk memilih lokasi atau geser pin yang ada
-        </Text>
+        <Text style={styles.instructionText}>{t('drag_to_change')}</Text>
       </View>
 
       <MapView
@@ -212,12 +201,12 @@ export default function PickLocationScreen({ navigation, route }) {
           <Marker
             coordinate={{
               latitude: selectedLocation.latitude,
-              longitude: selectedLocation.longitude
+              longitude: selectedLocation.longitude,
             }}
             draggable
             onDragEnd={handleMarkerDrag}
-            title="Lokasi Tugas"
-            description="Geser pin untuk mengubah lokasi"
+            title={t('task_location')}
+            description={t('drag_to_change')}
           />
         )}
       </MapView>
@@ -232,7 +221,7 @@ export default function PickLocationScreen({ navigation, route }) {
           iconColor="#3892c6"
         />
       </View>
-      
+
       <View style={styles.buttonContainer}>
         <Button
           mode="outlined"
@@ -240,7 +229,7 @@ export default function PickLocationScreen({ navigation, route }) {
           style={[styles.button, styles.cancelButton]}
           textColor="#3892c6"
         >
-          Batal
+          {t('cancel')}
         </Button>
         <Button
           mode="contained"
@@ -248,12 +237,13 @@ export default function PickLocationScreen({ navigation, route }) {
           style={[styles.button, styles.saveButton]}
           disabled={!selectedLocation}
         >
-          Simpan Lokasi
+          {t('save_location')}
         </Button>
       </View>
     </Surface>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

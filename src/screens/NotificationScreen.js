@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { Surface, List, Title, Divider, Appbar, ActivityIndicator, Text } from 'react-native-paper';
+import { Surface, List, Divider, ActivityIndicator, Text } from 'react-native-paper';
 import { formatDate, formatTime } from '../utils/dateUtils';
 import NotificationService from '../services/api/notification.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 export default function NotificationScreen() {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,28 +20,23 @@ export default function NotificationScreen() {
     try {
       setLoading(true);
       setError(null);
-
-      // Ambil data user dari AsyncStorage
       const userData = await AsyncStorage.getItem('user');
       const user = JSON.parse(userData);
 
       if (!user || !user.idUser) {
-        throw new Error('Data pengguna tidak ditemukan');
+        throw new Error(t('notification.user_data_not_found'));
       }
 
       const response = await NotificationService.getAllNotificationsByUsername(user.idUser);
-      
-      // Pastikan notifications selalu array
-      if (response && response.data && Array.isArray(response.data)) {
+      if (response?.data && Array.isArray(response.data)) {
         setNotifications(response.data);
       } else {
         setNotifications([]);
       }
-      
     } catch (err) {
       console.error('Error fetching notifications:', err);
-      setError('Gagal memuat notifikasi. Silakan coba lagi.');
-      setNotifications([]); // Set empty array on error
+      setError(t('notification.error_fetching'));
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
@@ -49,19 +46,16 @@ export default function NotificationScreen() {
     try {
       if (!notification.statusBaca) {
         await NotificationService.markAsRead(notification.idNotifikasi);
-
-        // Update state lokal
-        setNotifications(prevNotifications => 
-          prevNotifications.map(n => 
-            n.idNotifikasi === notification.idNotifikasi 
-              ? {...n, statusBaca: true}
+        setNotifications((prev) =>
+          prev.map((n) =>
+            n.idNotifikasi === notification.idNotifikasi
+              ? { ...n, statusBaca: true }
               : n
           )
         );
       }
     } catch (err) {
       console.error('Error updating notification status:', err);
-      // Tidak perlu menampilkan error ke user karena ini bukan operasi kritis
     }
   };
 
@@ -70,7 +64,7 @@ export default function NotificationScreen() {
       <SafeAreaView style={styles.container}>
         <Surface style={[styles.surface, styles.centerContent]}>
           <ActivityIndicator size="large" color="#3892c6" />
-          <Text style={styles.loadingText}>Memuat notifikasi...</Text>
+          <Text style={styles.loadingText}>{t('notification.loading')}</Text>
         </Surface>
       </SafeAreaView>
     );
@@ -91,7 +85,7 @@ export default function NotificationScreen() {
       <Surface style={styles.surface}>
         <ScrollView style={styles.content}>
           {notifications.length === 0 ? (
-            <Text style={styles.emptyText}>Tidak ada notifikasi</Text>
+            <Text style={styles.emptyText}>{t('notification.no_notifications')}</Text>
           ) : (
             notifications.map((notification, index) => (
               <React.Fragment key={notification.idNotifikasi}>
@@ -99,14 +93,14 @@ export default function NotificationScreen() {
                   title={notification.judul}
                   description={notification.pesan}
                   onPress={() => handleNotificationPress(notification)}
-                  left={props => (
+                  left={(props) => (
                     <List.Icon
                       {...props}
-                      icon={notification.statusBaca ? "bell-outline" : "bell"}
-                      color={notification.statusBaca ? "#666" : "#3892c6"}
+                      icon={notification.statusBaca ? 'bell-outline' : 'bell'}
+                      color={notification.statusBaca ? '#666' : '#3892c6'}
                     />
                   )}
-                  right={props => (
+                  right={() => (
                     <View style={styles.timeContainer}>
                       <List.Subheader style={styles.time}>
                         {formatTime(notification.tanggalDibuat)}
@@ -118,7 +112,7 @@ export default function NotificationScreen() {
                   )}
                   style={[
                     styles.listItem,
-                    !notification.statusBaca && styles.unreadItem
+                    !notification.statusBaca && styles.unreadItem,
                   ]}
                 />
                 {index < notifications.length - 1 && <Divider />}
@@ -149,9 +143,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    marginBottom: 16,
-  },
   listItem: {
     backgroundColor: '#fff',
     paddingVertical: 8,
@@ -173,10 +164,6 @@ const styles = StyleSheet.create({
     color: '#999',
     padding: 0,
   },
-  header: {
-    backgroundColor: '#3892c6',
-    elevation: 4,
-  },
   loadingText: {
     marginTop: 16,
     color: '#666',
@@ -191,4 +178,4 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 32,
   },
-}); 
+});

@@ -16,6 +16,7 @@ import {
   Button,
   useTheme,
 } from "react-native-paper";
+import { useTranslation } from 'react-i18next';  // Correct import statement for localization
 import {
   format,
   addDays,
@@ -36,7 +37,7 @@ import { id } from "date-fns/locale";
 import { taskService } from "../services";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const HARI = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
+const HARI = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];  // Localized day names
 const BULAN = [
   "Januari",
   "Februari",
@@ -55,7 +56,6 @@ const BULAN = [
 const { width } = Dimensions.get("window");
 const DATE_ITEM_WIDTH = (width - 60) / 5;
 const YEAR_ITEM_WIDTH = 100;
-// Perbesar ukuran month item untuk mengakomodasi teks yang lebih panjang
 const MONTH_ITEM_WIDTH = 130;
 
 // Generate time slots for timeline (setiap jam)
@@ -92,6 +92,26 @@ const generateYearRange = () => {
 };
 
 export default function AgendaScreen({ navigation, route }) {
+
+  const { t } = useTranslation();  // Use the useTranslation hook for localization
+
+  // Localized day and month names
+  const HARI = [t("sun"), t("mon"), t("tue"), t("wed"), t("thu"), t("fri"), t("sat")];
+  const BULAN = [
+    t("jan"),
+    t("feb"),
+    t("mar"),
+    t("apr"),
+    t("may"),
+    t("jun"),
+    t("jul"),
+    t("aug"),
+    t("sep"),
+    t("oct"),
+    t("nov"),
+    t("dec"),
+  ];
+  
   const theme = useTheme();
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState(today);
@@ -322,16 +342,10 @@ export default function AgendaScreen({ navigation, route }) {
                 <TouchableOpacity
                   key={year}
                   onPress={() => updateDate("year", year)}
-                  style={[
-                    styles.yearItem,
-                    year === getYear(tempDate) && styles.selectedYearItem,
-                  ]}
+                  style={[styles.yearItem, year === getYear(tempDate) && styles.selectedYearItem]}
                 >
                   <Text
-                    style={[
-                      styles.yearText,
-                      year === getYear(tempDate) && styles.selectedYearText,
-                    ]}
+                    style={[styles.yearText, year === getYear(tempDate) && styles.selectedYearText]}
                   >
                     {year}
                   </Text>
@@ -349,16 +363,10 @@ export default function AgendaScreen({ navigation, route }) {
                 <TouchableOpacity
                   key={bulan}
                   onPress={() => updateDate("month", index)}
-                  style={[
-                    styles.monthItem,
-                    index === getMonth(tempDate) && styles.selectedMonthItem,
-                  ]}
+                  style={[styles.monthItem, index === getMonth(tempDate) && styles.selectedMonthItem]}
                 >
                   <Text
-                    style={[
-                      styles.monthText,
-                      index === getMonth(tempDate) && styles.selectedMonthText,
-                    ]}
+                    style={[styles.monthText, index === getMonth(tempDate) && styles.selectedMonthText]}
                     numberOfLines={1}
                     adjustsFontSizeToFit={true}
                     minimumFontScale={0.8}
@@ -383,26 +391,17 @@ export default function AgendaScreen({ navigation, route }) {
                   <TouchableOpacity
                     key={date.toISOString()}
                     onPress={() => updateDate("date", getDate(date))}
-                    style={[
-                      styles.dateItem,
-                      isSelected && styles.selectedDateItem,
-                    ]}
+                    style={[styles.dateItem, isSelected && styles.selectedDateItem]}
                   >
                     <Text
-                      style={[
-                        styles.dateText,
-                        isSelected && styles.selectedDateText,
-                      ]}
+                      style={[styles.dateText, isSelected && styles.selectedDateText]}
                     >
                       {getDate(date)}
                     </Text>
                     <Text
-                      style={[
-                        styles.dayText,
-                        isSelected && styles.selectedDateText,
-                      ]}
+                      style={[styles.dayText, isSelected && styles.selectedDateText]}
                     >
-                      {HARI[dayIndex]}
+                      {HARI[dayIndex]}  {/* Use localized day names from HARI */}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -569,10 +568,7 @@ export default function AgendaScreen({ navigation, route }) {
                 style={[styles.yearItem, { width: YEAR_ITEM_WIDTH }]}
               >
                 <Text
-                  style={[
-                    styles.yearText,
-                    isSelected && styles.selectedYearText,
-                  ]}
+                  style={[styles.yearText, isSelected && styles.selectedYearText]}
                 >
                   {year}
                 </Text>
@@ -603,10 +599,7 @@ export default function AgendaScreen({ navigation, route }) {
                 style={[styles.monthItem, { width: MONTH_ITEM_WIDTH }]}
               >
                 <Text
-                  style={[
-                    styles.monthText,
-                    isSelected && styles.selectedMonthText,
-                  ]}
+                  style={[styles.monthText, isSelected && styles.selectedMonthText]}
                   numberOfLines={1}
                   adjustsFontSizeToFit={true}
                   minimumFontScale={0.8}
@@ -633,9 +626,6 @@ export default function AgendaScreen({ navigation, route }) {
         {monthDates.map((date, index) => {
           const isSelected = format(date, "d") === format(selectedDate, "d");
           const dayOfWeek = date.getDay();
-          const dayAbbrev = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
-            dayOfWeek
-          ];
 
           return (
             <TouchableOpacity
@@ -644,17 +634,14 @@ export default function AgendaScreen({ navigation, route }) {
               style={[styles.dateItem, isSelected && styles.selectedDateItem]}
             >
               <Text
-                style={[
-                  styles.dateNumber,
-                  isSelected && styles.selectedDateNumber,
-                ]}
+                style={[styles.dateNumber, isSelected && styles.selectedDateNumber]}
               >
                 {format(date, "d")}
               </Text>
               <Text
-                style={[styles.dayText, isSelected && styles.selectedDayText]}
+                style={[styles.dayText, isSelected && styles.selectedDateText]}
               >
-                {dayAbbrev}
+                {HARI[dayOfWeek]}  {/* Use localized day names from HARI */}
               </Text>
             </TouchableOpacity>
           );
@@ -664,21 +651,50 @@ export default function AgendaScreen({ navigation, route }) {
   };
 
   const renderTaskCard = (task) => {
-    return (
-      <TouchableOpacity
-        key={task.id}
-        onPress={() => navigation.navigate('DetailTask', { id: task.id })}
-        activeOpacity={0.8}
-        style={[styles.taskCard, { backgroundColor: task.warna }]}
-      >
-        <Text style={styles.taskTitle}>{task.judulTugas}</Text>
-        <Text style={styles.taskPriority}>Prioritas: {task.prioritas}</Text>
-        <Text style={styles.taskTime}>
-          {task.waktuMulai} - {task.waktuSelesai}
-        </Text>
-      </TouchableOpacity>
-    );
+  const formatDateTime = (dateTimeStr) => {
+    try {
+      if (!dateTimeStr) return '';
+      let date;
+      if (typeof dateTimeStr === 'string' && dateTimeStr.includes('-') && dateTimeStr.includes(' ')) {
+        const [datePart, timePart] = dateTimeStr.split(' ');
+        const [day, month, year] = datePart.split('-');
+        const [hours, minutes] = timePart.split(':');
+        date = new Date(year, month - 1, day, hours, minutes);
+      } else if (typeof dateTimeStr === 'string' && dateTimeStr.includes('T')) {
+        date = new Date(dateTimeStr);
+      } else {
+        date = new Date(dateTimeStr);
+      }
+      if (!date || isNaN(date.getTime())) return dateTimeStr;
+      return formatDateFns(date, 'dd MMMM yyyy HH:mm', { locale: currentLocale });
+    } catch (error) {
+      return dateTimeStr;
+    }
   };
+
+  return (
+    <TouchableOpacity
+      key={task.id}
+      onPress={() => navigation.navigate('DetailTask', { id: task.id })}
+      activeOpacity={0.8}
+      style={[styles.taskCard, { backgroundColor: task.warna }]}
+    >
+      <Text style={styles.taskTitle}>{task.judulTugas}</Text>
+      
+      {/* Localizing the priority label */}
+      <Text style={styles.taskPriority}>
+        {t('priority')}: {t(`priority_${task.prioritas.toLowerCase()}`)}
+      </Text>
+      
+      {/* Localizing the start and end times */}
+      <Text style={styles.taskTime}>
+        {t('start_time')}: {formatDateTime(task.waktuMulai)} - {t('end_time')}: {formatDateTime(task.waktuSelesai)}
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
+
 
   const renderTimelineSlots = () => {
     const timeSlots = generateTimeSlots();
@@ -714,7 +730,8 @@ export default function AgendaScreen({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          
+          <Text style={styles.headerTitle}>{t('ongoing')}</Text>
+
           <View style={styles.yearDisplay}>{renderYearStrip()}</View>
           <View style={styles.monthDisplay}>{renderMonthStrip()}</View>
         </View>
@@ -723,7 +740,7 @@ export default function AgendaScreen({ navigation, route }) {
       <View style={styles.calendarContainer}>{renderCalendarStrip()}</View>
 
       <View style={styles.timelineContainer}>
-        <Text style={styles.sectionTitle}>Ongoing</Text>
+        <Text style={styles.sectionTitle}>{t('ongoing')}</Text>
         {renderTimelineSlots()}
       </View>
 

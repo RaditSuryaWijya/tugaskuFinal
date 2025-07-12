@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { TextInput, Button, Text, Surface, Divider } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { authService } from '../../services';
 import { IS_DEVELOPMENT } from '../../config/constants';
 import { useAuth } from '../../context/AuthContext';
@@ -8,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
   const { setIsAuthenticated, loginSuccess } = useAuth();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,7 +18,7 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError('Email dan password harus diisi');
+      setError(t("login.error_empty_fields"));
       return;
     }
 
@@ -27,10 +29,10 @@ export default function LoginScreen({ navigation }) {
       if (response && response.result === 200) {
         await loginSuccess(response.data);
       } else {
-        setError(response?.message || 'Gagal login. Silakan coba lagi.');
+        setError(response?.message || t("login.error_generic"));
       }
     } catch (error) {
-      setError(error?.response?.data?.message || error.message || 'Gagal login. Silakan coba lagi.');
+      setError(error?.response?.data?.message || error.message || t("login.error_generic"));
     } finally {
       setLoading(false);
     }
@@ -49,19 +51,19 @@ export default function LoginScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <Surface style={styles.surface}>
         <View style={styles.content}>
-          <Text style={styles.title}>Login TugasKu</Text>
-          
+          <Text style={styles.title}>{t("login.title")}</Text>
+
           <TextInput
-            label="Email"
+            label={t("login.email")}
             value={email}
             onChangeText={setEmail}
             style={styles.input}
             mode="outlined"
             autoCapitalize="none"
           />
-          
+
           <TextInput
-            label="Password"
+            label={t("login.password")}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -84,17 +86,17 @@ export default function LoginScreen({ navigation }) {
             loading={loading}
             disabled={loading}
           >
-            Login
+            {t("login.button_login")}
           </Button>
 
           <View style={styles.registerContainer}>
-            <Text>Belum punya akun? </Text>
+            <Text>{t("login.no_account")}</Text>
             <Button
               mode="text"
               onPress={() => navigation.navigate('Register')}
               style={styles.registerButton}
             >
-              Daftar
+              {t("login.register_button")}
             </Button>
           </View>
 
@@ -102,13 +104,13 @@ export default function LoginScreen({ navigation }) {
             <>
               <Divider style={styles.divider} />
               <View style={styles.developmentContainer}>
-                <Text style={styles.developmentText}>Mode Pengembangan</Text>
+                <Text style={styles.developmentText}>{t("login.development_mode")}</Text>
                 <Button
                   mode="outlined"
                   onPress={handleSkipLogin}
                   style={styles.skipButton}
                 >
-                  Skip Login
+                  {t("login.skip_login")}
                 </Button>
               </View>
             </>
@@ -177,4 +179,4 @@ const styles = StyleSheet.create({
   skipButton: {
     width: '50%',
   },
-}); 
+});

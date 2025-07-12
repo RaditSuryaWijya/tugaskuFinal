@@ -5,8 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import { IS_DEVELOPMENT } from '../config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileScreen() {
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const navigation = useNavigation();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -17,14 +19,11 @@ export default function ProfileScreen() {
     const fetchUser = async () => {
       try {
         const userData = await AsyncStorage.getItem('user');
-        console.log(userData);
         if (userData) {
           const parsedUser = JSON.parse(userData);
-          console.log(parsedUser);
-          // Format tanggal lahir jika ada
           if (parsedUser.tanggalLahir) {
             const date = new Date(parsedUser.tanggalLahir);
-            parsedUser.tanggalLahir = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+            parsedUser.tanggalLahir = date.toISOString().split('T')[0];
           }
           setUser(parsedUser);
         }
@@ -76,8 +75,8 @@ export default function ProfileScreen() {
         <ScrollView>
           <View style={styles.header}>
             <Avatar.Icon size={80} icon="account" style={styles.avatar} />
-            <Text style={styles.username}>{user ? user.email : 'Azizah Salsa'}</Text>
-            {IS_DEVELOPMENT && <Text style={styles.devBadge}>Modeeee Pengembangan</Text>}
+            <Text style={styles.username}>{user ? user.email : t('default_user')}</Text>
+            {IS_DEVELOPMENT && <Text style={styles.devBadge}>{t('dev_mode')}</Text>}
           </View>
 
           <Divider style={styles.divider} />
@@ -85,22 +84,22 @@ export default function ProfileScreen() {
           <View style={styles.content}>
             {renderProfileItem(
               <Avatar.Icon size={40} icon="phone" style={styles.fieldIcon} />,
-              'No Teleponnn',
+              t('phone_number'),
               profileData.noTelepon
             )}
             {renderProfileItem(
               <Avatar.Icon size={40} icon="email" style={styles.fieldIcon} />,
-              'Email',
+              t('email'),
               profileData.email
             )}
             {renderProfileItem(
               <Avatar.Icon size={40} icon="gender-male-female" style={styles.fieldIcon} />,
-              'Jenis Kelamin',
+              t('gender'),
               profileData.jenisKelamin
             )}
             {renderProfileItem(
               <Avatar.Icon size={40} icon="calendar" style={styles.fieldIcon} />,
-              'Tanggal Lahir',
+              t('birth_date'),
               profileData.tanggalLahir
             )}
 
@@ -110,7 +109,7 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('Settings')}
               style={styles.settingsButton}
             >
-              Pengaturan
+              {t('settings')}
             </Button>
 
             <Button
@@ -119,26 +118,26 @@ export default function ProfileScreen() {
               onPress={() => setShowLogoutDialog(true)}
               style={styles.logoutButton}
             >
-              Logout
+              {t('logout')}
             </Button>
           </View>
         </ScrollView>
 
         <Portal>
           <Dialog visible={showLogoutDialog} onDismiss={() => setShowLogoutDialog(false)}>
-            <Dialog.Title>Konfirmasi Logout</Dialog.Title>
+            <Dialog.Title>{t('logout_confirm_title')}</Dialog.Title>
             <Dialog.Content>
-              <Text>Apakah Anda yakin ingin keluar dari aplikasi?</Text>
+              <Text>{t('logout_confirm_text')}</Text>
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={() => setShowLogoutDialog(false)}>Batal</Button>
-              <Button 
+              <Button onPress={() => setShowLogoutDialog(false)}>{t('cancel')}</Button>
+              <Button
                 mode="contained"
                 onPress={handleLogout}
                 loading={loading}
                 disabled={loading}
               >
-                Logout
+                {t('logout')}
               </Button>
             </Dialog.Actions>
           </Dialog>
@@ -147,6 +146,7 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

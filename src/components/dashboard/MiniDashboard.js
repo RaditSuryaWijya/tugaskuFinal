@@ -1,20 +1,23 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import TaskSummaryCard from './TaskSummaryCard';
 
 export default function MiniDashboard({ completedTasks, pendingTasks, children }) {
+  const { t } = useTranslation(); // Hook untuk terjemahan
+
   return (
     <View style={styles.container}>
       <View style={styles.cardContainer}>
         <TaskSummaryCard
-          title="Tugas Selesai"
+          title={t('dashboard.completedTasks')} // Menggunakan terjemahan
           count={completedTasks}
           icon="check-circle"
           color="#4CAF50"
         />
         <TaskSummaryCard
-          title="Tugas Belum Selesai"
+          title={t('dashboard.pendingTasks')} // Menggunakan terjemahan
           count={pendingTasks}
           icon="clock-outline"
           color="#FF5722"
@@ -40,4 +43,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-}); 
+});
