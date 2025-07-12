@@ -35,6 +35,7 @@ export const ENDPOINTS = {
   // User
   USER_PROFILE: 'api/user/profile',
   USER_UPDATE: 'api/user/profile',
+  UPDATE_USER: (id) => `api/users/${id}`,  
   
   // Notifications
   NOTIFICATIONS: 'api/notifikasi',
