@@ -84,29 +84,34 @@
     "error_generic": "Gagal Masuk. Silakan coba lagi."
   },
    "register": {
-    "title": "Register TugasKu",
-    "phone": "Phone Number",
+    "title": "Pendaftaran TugasKu",
+    "phone": "Nomor Telepon",
     "phonePlaceholder": "+628 52 657-9999",
     "email": "Email",
     "emailPlaceholder": "azizahsal@gmail.com",
-    "gender": "Gender",
-    "selectGender": "Select Gender",
-    "male": "Male",
-    "female": "Female",
-    "dob": "Date of Birth",
-    "password": "Password",
-    "confirmPassword": "Confirm Password",
-    "registerButton": "Register",
-    "alreadyHaveAccount": "Already have an account?",
-    "login": "Login",
-    "savingData": "Saving registration data...",
-    "success": "Registration successful!",
-    "errorGeneric": "Registration failed.",
-    "errorServer": "Server error, please try again later.",
+    "gender": "Jenis Kelamin",
+    "selectGender": "Pilih Jenis Kelamin",
+    "male": "Laki-laki",
+    "female": "Perempuan",
+    "dob": "Tanggal Lahir",
+    "password": "Kata Sandi",
+    "confirmPassword": "Konfimasi Kata Sandi",
+    "registerButton": "Daftar",
+    "alreadyHaveAccount": "Akun sudah tersedia?",
+    "login": "Masuk",
+    "savingData": "Menyimpan Data Pendaftaran...",
+    "success": "Pendaftaran Berhasil!",
+    "errorGeneric": "Pendaftaran Gagal.",
+    "errorServer": "Server sibuk, coba kembali nanti.",
     "validation": {
-      "errorEmptyFields": "All fields must be filled.",
-      "errorPasswordMismatch": "Passwords do not match."
+      "errorEmptyFields": "Semuanya harus diisi.",
+      "errorPasswordMismatch": "Kata sandi tidak sama."
     }
+  },
+
+    "register": {
+    "male": "Laki-laki",
+    "female": "Perempuan"
   },
   "dashboard": {
     "completedTasks": "Tugas Selesai",
@@ -217,7 +222,7 @@
     "optionalNote": "Bagian ini opsional, bisa diisi jika ingin menambah lokasi atau foto."
   },
   "profile": {
-    "edit": "Edit Profil",
+    "edit": "Ubah Profil",
     "personal_info": "Informasi Pribadi",
     "save_success": "Profil berhasil diperbarui!",
     "save_error": "Gagal memperbarui profil"
@@ -233,5 +238,53 @@
       "mismatch": "Kata sandi baru tidak cocok"
     }
   },
-  "priorityLabel": "Prioritas"
+
+  "photo": {
+  "change": "Ubah Foto"
+},
+
+"profile": {
+  "edit": "Ubah Profil",
+  "personal_info": "Informasi Pribadi",
+  "save_success": "Profil berhasil diperbarui!",
+  "save_error": "Gagal memperbarui profil",
+  "user_id_missing": "ID Pengguna tidak ditemukan"
+},
+
+  "priorityLabel": "Prioritas",
+
+  "addtask_photo": {
+  "optional": "Foto (Opsional)",
+  "take": "Ambil Foto",
+  "pick": "Pilih dari Galeri",
+  "success": "Foto berhasil dipilih!",
+  "fail": "Gagal memilih foto. Silakan coba lagi."
+},
+
+"register": {
+  "title": "Daftar Akun",
+  "phone": "Nomor Telepon",
+  "phonePlaceholder": "Masukkan nomor telepon",
+  "email": "Email",
+  "emailPlaceholder": "Masukkan alamat email",
+  "gender": "Jenis Kelamin",
+  "selectGender": "Pilih jenis kelamin",
+  "male": "Laki-laki",
+  "female": "Perempuan",
+  "dob": "Tanggal Lahir",
+  "password": "Kata Sandi",
+  "confirmPassword": "Konfirmasi Kata Sandi",
+  "registerButton": "Daftar",
+  "alreadyHaveAccount": "Sudah punya akun?",
+  "login": "Masuk",
+  "savingData": "Menyimpan data...",
+  "success": "Pendaftaran berhasil!",
+  "errorGeneric": "Terjadi kesalahan saat mendaftar. ",
+  "errorServer": "Gagal menyambung ke server.",
+  "validation": {
+    "errorEmptyFields": "Semua kolom wajib diisi!",
+    "errorPasswordMismatch": "Kata sandi dan konfirmasi tidak cocok"
+  }
+}
+
 }

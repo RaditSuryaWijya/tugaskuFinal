@@ -364,7 +364,7 @@ export default function AddTaskScreen({ navigation, route }) {
               </View>
             )}
 
-            <Text style={styles.label}>{t("photo.optional")}</Text>
+            <Text style={styles.label}>{t("addtask_photo.optional")}</Text>
             <View style={styles.photoButtons}>
               <Button 
                 mode="outlined" 
@@ -373,7 +373,7 @@ export default function AddTaskScreen({ navigation, route }) {
                 textColor="#3892c6"
                 theme={{ colors: { outline: '#3892c6' } }}
               >
-                {t("photo.take")}
+                {t("addtask_photo.take")}
               </Button>
               <Button 
                 mode="outlined" 
@@ -382,7 +382,7 @@ export default function AddTaskScreen({ navigation, route }) {
                 textColor="#3892c6"
                 theme={{ colors: { outline: '#3892c6' } }}
               >
-                {t("photo.pick")}
+                {t("addtask_photo.pick")}
               </Button>
             </View>
             {taskData.photo && (

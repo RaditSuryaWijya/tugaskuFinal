@@ -134,6 +134,11 @@
   "agenda": {
     "ongoing": "Ongoing"
   },
+
+    "register": {
+    "male": "Male",
+    "female": "Female"
+  },  
   "sun": "Sun",
   "mon": "Mon",
   "tue": "Tue",
@@ -237,5 +242,61 @@
       "length": "Password must be at least 6 characters",
       "mismatch": "New passwords do not match"
     }
+  },
+
+  "photo": {
+  "change": "Change Photo"
+  },
+
+  "profile": {
+  "edit": "Edit Profile",
+  "personal_info": "Personal Information",
+  "save_success": "Profile updated successfully!",
+  "save_error": "Failed to update profile",
+  "user_id_missing": "User ID not found"
+},
+
+"photo": {
+    "optional": "Photo (Optional)",
+    "take": "Take Photo",
+    "pick": "Pick from Gallery",
+    "success": "Photo selected successfully!",
+    "fail": "Failed to pick photo. Please try again."
+  },
+
+  "addtask_photo": {
+  "optional": "Photo (Optional)",
+  "take": "Take Photo",
+  "pick": "Pick from Gallery",
+  "success": "Photo selected successfully!",
+  "fail": "Failed to pick photo. Please try again."
+},
+
+"register": {
+  "title": "Register Account",
+  "phone": "Phone Number",
+  "phonePlaceholder": "Enter your phone number",
+  "email": "Email",
+  "emailPlaceholder": "Enter your email address",
+  "gender": "Gender",
+  "selectGender": "Select gender",
+  "male": "Male",
+  "female": "Female",
+  "dob": "Date of Birth",
+  "password": "Password",
+  "confirmPassword": "Confirm Password",
+  "registerButton": "Register",
+  "alreadyHaveAccount": "Already have an account?",
+  "login": "Login",
+  "savingData": "Saving data...",
+  "success": "Registration successful!",
+  "errorGeneric": "An error occurred during registration. ",
+  "errorServer": "Failed to connect to server.",
+  "validation": {
+    "errorEmptyFields": "All fields are required!",
+    "errorPasswordMismatch": "Passwords do not match"
   }
+}
+
+
 }

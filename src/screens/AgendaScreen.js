@@ -756,7 +756,7 @@ export default function AgendaScreen({ navigation, route }) {
       <View style={styles.calendarContainer}>{renderCalendarStrip()}</View>
 
       <View style={styles.timelineContainer}>
-        <Text style={styles.sectionTitle}>{t('ongoing')}</Text>
+        <Text style={styles.sectionTitle}>{t('agenda.ongoing')}</Text>
         {renderTimelineSlots()}
       </View>
 
