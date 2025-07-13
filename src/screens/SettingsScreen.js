@@ -1,68 +1,63 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { Surface, List, Switch, Divider, Text, RadioButton } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
+import { Surface, List, Divider, Text, Portal, Dialog, RadioButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import i18n from '../i18n/i18n'; // pastikan path ini sesuai dengan lokasi file i18n.js kamu
+import { saveLanguage, getStoredLanguage } from '../i18n/i18n';
 
-export default function SettingsScreen({ navigation }) {
-  const { t } = useTranslation();
+export default function SettingsScreen() {
+  const { t, i18n } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = useState('id');
+  const [showLanguageDialog, setShowLanguageDialog] = useState(false);
 
-  const [settings, setSettings] = useState({
-    language: i18n.language || 'id',
-    darkMode: false,
-    notifications: true,
-    soundEnabled: true,
-    vibrationEnabled: true,
-  });
+  // Load saved language when screen mounts
+  useEffect(() => {
+    loadSavedLanguage();
+  }, []);
 
-  const languages = [
-    { label: 'Bahasa Indonesia', value: 'id' },
-    { label: 'English', value: 'en' },
-  ];
+  const loadSavedLanguage = async () => {
+    const savedLanguage = await getStoredLanguage();
+    setCurrentLanguage(savedLanguage);
+  };
 
-  const handleLanguageChange = (value) => {
-    setSettings(prev => ({ ...prev, language: value }));
-    i18n.changeLanguage(value);
+  const handleLanguageChange = async (newLanguage) => {
+    setCurrentLanguage(newLanguage);
+    await saveLanguage(newLanguage);
+    i18n.changeLanguage(newLanguage);
+    setShowLanguageDialog(false);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Surface style={styles.surface}>
-        <ScrollView>
-          <Text style={styles.title}>{t('settings')}</Text>
-
-          <List.Section>
-            <List.Subheader>{t('language')}</List.Subheader>
-            <RadioButton.Group 
-              onValueChange={handleLanguageChange} 
-              value={settings.language}
-            >
-              {languages.map((lang) => (
-                <List.Item
-                  key={lang.value}
-                  title={lang.label}
-                  left={() => (
-                    <RadioButton.Android 
-                      value={lang.value} 
-                      color="#3892c6"
-                    />
-                  )}
-                  onPress={() => handleLanguageChange(lang.value)}
-                />
-              ))}
-            </RadioButton.Group>
-          </List.Section>
-
-          <List.Section>
-            <List.Subheader>{t('about')}</List.Subheader>
-            <List.Item
-              title={t('app_version')}
-              description="1.0.0"
-              left={() => <List.Icon icon="information" />}
-            />
-          </List.Section>
-        </ScrollView>
+        <List.Section>
+          <List.Subheader>{t('settings')}</List.Subheader>
+          
+          <List.Item
+            title={t('language')}
+            description={currentLanguage === 'id' ? 'Bahasa Indonesia' : 'English'}
+            onPress={() => setShowLanguageDialog(true)}
+          />
+          
+          <Divider />
+          
+          <List.Item
+            title={t('app_version')}
+            description="1.0.0"
+          />
+        </List.Section>
       </Surface>
+
+      <Portal>
+        <Dialog visible={showLanguageDialog} onDismiss={() => setShowLanguageDialog(false)}>
+          <Dialog.Title>{t('language')}</Dialog.Title>
+          <Dialog.Content>
+            <RadioButton.Group onValueChange={handleLanguageChange} value={currentLanguage}>
+              <RadioButton.Item label="Bahasa Indonesia" value="id" />
+              <RadioButton.Item label="English" value="en" />
+            </RadioButton.Group>
+          </Dialog.Content>
+        </Dialog>
+      </Portal>
     </SafeAreaView>
   );
 }
@@ -70,17 +65,11 @@ export default function SettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#E8F4FD',
   },
   surface: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#3892c6',
-    textAlign: 'center',
-    marginVertical: 16,
+    margin: 16,
+    elevation: 1,
+    borderRadius: 8,
   },
 });

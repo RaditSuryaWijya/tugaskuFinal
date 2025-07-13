@@ -1,4 +1,27 @@
 {
+  "welcome": {
+    "app_name": "TugasKu",
+    "landing": {
+      "description": "Membantu kamu menyelesaikan tugas dengan mudah dan teratur!",
+      "login_button": "Masuk",
+      "register_button": "Daftar"
+    },
+    "screen1": {
+      "description": "Membantu kamu menyelesaikan tugas dengan mudah dan teratur!"
+    },
+    "screen2": {
+      "description": "Tugasku mengelola tugas menjadi lebih simpel dan terstruktur. Cocok bagi berbagai kalangan.",
+      "next_button": "Selanjutnya"
+    },
+    "screen3": {
+      "description": "Lihat daftar tugas berdasarkan deadline terdekat. Semuanya langsung dari genggaman tangan.",
+      "next_button": "Selanjutnya"
+    },
+    "screen4": {
+      "description": "Upload foto atau update status dan lihat riwayat tugas!",
+      "start_button": "Mulai"
+    }
+  },
   "settings": "Pengaturan",
   "language": "Bahasa",
   "dark_mode": "Mode Gelap",

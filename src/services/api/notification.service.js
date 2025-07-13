@@ -22,25 +22,18 @@ class NotificationService {
   // Mendapatkan notifikasi yang belum dibaca berdasarkan ID user
   async getUnreadNotificationsByUserId(userId) {
     try {
-      const response = await axiosInstance.get(
-        ENDPOINTS.NOTIFICATIONS + `/user/${userId}/unread`
-      );
-      // Response diharapkan dalam format { result, message, data }
+      const response = await axiosInstance.get(ENDPOINTS.NOTIFICATION_GET_UNREAD(userId));
+      // Pastikan response selalu dalam format yang konsisten
       if (response && response.data) {
         return {
-          result: response.data.result,
-          message: response.data.message,
-          data: Array.isArray(response.data.data) ? response.data.data : [],
+          data: Array.isArray(response.data) ? response.data : [],
+          status: response.status,
         };
       }
-      return { result: 200, message: 'Berhasil', data: [] };
+      return { data: [], status: 200 };
     } catch (error) {
       console.error('Error in getUnreadNotificationsByUserId:', error);
-      return {
-        result: error.response?.status || 500,
-        message: 'Gagal mengambil notifikasi belum dibaca',
-        data: [],
-      };
+      return { data: [], status: error.response?.status || 500 };
     }
   }
 

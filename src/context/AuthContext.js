@@ -11,39 +11,58 @@ export function AuthProvider({ children }) {
 
   // Cek status login dan load user dari AsyncStorage saat inisialisasi
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const authenticated = await authService.isAuthenticated();
-        setIsAuthenticated(authenticated);
-        const userData = await AsyncStorage.getItem('user');
-        setUser(userData ? JSON.parse(userData) : null);
-      } catch (error) {
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadUser();
+    loadUserAndToken();
   }, []);
 
-  const checkAuth = async () => {
+  const loadUserAndToken = async () => {
     try {
-      const authenticated = await authService.isAuthenticated();
-      setIsAuthenticated(authenticated);
-      const userData = await AsyncStorage.getItem('user');
-      setUser(userData ? JSON.parse(userData) : null);
+      setIsLoading(true);
+      const [token, userData] = await Promise.all([
+        AsyncStorage.getItem('auth_token'),
+        AsyncStorage.getItem('user')
+      ]);
+
+      if (token) {
+        const isValid = await authService.validateToken(token);
+        if (isValid) {
+          setIsAuthenticated(true);
+          if (userData) {
+            setUser(JSON.parse(userData));
+          } else {
+            // Jika token valid tapi tidak ada user data, ambil dari server
+            const currentUser = await authService.getCurrentUser();
+            if (currentUser) {
+              setUser(currentUser);
+              await AsyncStorage.setItem('user', JSON.stringify(currentUser));
+            }
+          }
+        } else {
+          // Token tidak valid, hapus data
+          await logout();
+        }
+      }
     } catch (error) {
-      setUser(null);
+      console.error('Error loading user data:', error);
+      await logout();
     } finally {
       setIsLoading(false);
     }
   };
 
+  const checkAuth = async () => {
+    await loadUserAndToken();
+  };
+
   // Saat login sukses, panggil setUser dan simpan ke AsyncStorage
   const loginSuccess = async (userData) => {
-    setIsAuthenticated(true);
-    setUser(userData);
-    await AsyncStorage.setItem('user', JSON.stringify(userData));
+    try {
+      setIsAuthenticated(true);
+      setUser(userData);
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Error saving user data:', error);
+      throw error;
+    }
   };
 
   // Saat logout, hapus user dari state dan AsyncStorage
@@ -52,10 +71,13 @@ export function AuthProvider({ children }) {
       await authService.logout();
       setIsAuthenticated(false);
       setUser(null);
-      await AsyncStorage.removeItem('user');
+      await AsyncStorage.multiRemove(['user', 'auth_token', 'refresh_token']);
     } catch (error) {
       console.error('Error during logout:', error);
-      throw error;
+      // Tetap hapus data lokal meskipun API gagal
+      setIsAuthenticated(false);
+      setUser(null);
+      await AsyncStorage.multiRemove(['user', 'auth_token', 'refresh_token']);
     }
   };
 

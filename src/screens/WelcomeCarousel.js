@@ -43,14 +43,17 @@ const WelcomeCarousel = ({ onWelcomeComplete, onNavigateToAuth }) => {
       pagingEnabled
       showsHorizontalScrollIndicator={false}
       keyExtractor={(_, index) => index.toString()}
-      renderItem={({ item }) => <View style={styles.page}>{item}</View>}
+      renderItem={({ item }) => (
+        <View style={[styles.page, { width }]}>
+          {item}
+        </View>
+      )}
     />
   );
 };
 
 const styles = StyleSheet.create({
   page: {
-    width,
     flex: 1,
   },
 });

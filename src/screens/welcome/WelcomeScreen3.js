@@ -1,29 +1,33 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { useTranslation } from 'react-i18next';
 
-const WelcomeScreen3 = ({ onNext }) => (
-  <View style={styles.container}>
-    <Image
-      source={require("../../../assets/character.png")}
-      style={styles.logo}
-    />
-    <View style={styles.card}>
-      <Text style={styles.title}>TugasKu</Text>
-      <Text style={styles.description}>
-        Lihat daftar tugas berdasarkan deadline terdekat. Semuanya langsung dari
-        genggaman tangan.
-      </Text>
-      <TouchableOpacity onPress={onNext} style={styles.button}>
-        <Text style={styles.buttonText}>Selanjutnya</Text>
-      </TouchableOpacity>
+const WelcomeScreen3 = ({ onNext }) => {
+  const { t } = useTranslation();
+  
+  return (
+    <View style={styles.container}>
+      <Image
+        source={require("../../../assets/character.png")}
+        style={styles.logo}
+      />
+      <View style={styles.card}>
+        <Text style={styles.title}>{t('welcome.app_name')}</Text>
+        <Text style={styles.description}>
+          {t('welcome.screen3.description')}
+        </Text>
+        <TouchableOpacity onPress={onNext} style={styles.button}>
+          <Text style={styles.buttonText}>{t('welcome.screen3.next_button')}</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.pagination}>
+        <View style={styles.dotInactive} />
+        <View style={styles.dotActive} />
+        <View style={styles.dotInactive} />
+      </View>
     </View>
-    <View style={styles.pagination}>
-      <View style={styles.dotInactive} />
-      <View style={styles.dotActive} />
-      <View style={styles.dotInactive} />
-    </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

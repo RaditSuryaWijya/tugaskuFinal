@@ -1,4 +1,27 @@
 {
+  "welcome": {
+    "app_name": "TugasKu",
+    "landing": {
+      "description": "Help you complete tasks easily and in an organized way!",
+      "login_button": "Login",
+      "register_button": "Register"
+    },
+    "screen1": {
+      "description": "Help you complete tasks easily and in an organized way!"
+    },
+    "screen2": {
+      "description": "TugasKu makes task management simpler and more structured. Suitable for everyone.",
+      "next_button": "Next"
+    },
+    "screen3": {
+      "description": "View task list based on nearest deadline. Everything right from your hand.",
+      "next_button": "Next"
+    },
+    "screen4": {
+      "description": "Upload photos or update status and view task history!",
+      "start_button": "Start"
+    }
+  },
   "settings": "Settings",
   "language": "Language",
   "dark_mode": "Dark Mode",

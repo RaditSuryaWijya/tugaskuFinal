@@ -25,11 +25,12 @@ export default function LoginScreen({ navigation }) {
     try {
       setLoading(true);
       setError('');
-      const response = await authService.login(email, password);
-      if (response && response.result === 200) {
-        await loginSuccess(response.data);
+      const { token, user } = await authService.login(email, password);
+      if (token && user) {
+        await loginSuccess(user);
+        // Navigasi ke halaman utama jika perlu
       } else {
-        setError(response?.message || t("login.error_generic"));
+        setError(t("login.error_generic"));
       }
     } catch (error) {
       setError(error?.response?.data?.message || error.message || t("login.error_generic"));

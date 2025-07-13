@@ -1,22 +1,31 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { useTranslation } from 'react-i18next';
 
 const LandingPage = ({ onLogin, onRegister }) => {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.container}>
       <Image source={require("../../../assets/logo.png")} style={styles.logo} />
-      <Text style={styles.title}>TugasKu</Text>
+      <Text style={styles.title}>{t('welcome.app_name')}</Text>
       <Text style={styles.description}>
-        Membantu kamu menyelesaikan tugas dengan mudah dan teratur!
+        {t('welcome.landing.description')}
       </Text>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.loginButton} onPress={onLogin}>
-          <Text style={styles.loginButtonText}>Masuk</Text>
+        <TouchableOpacity 
+          style={styles.loginButton} 
+          onPress={() => onLogin('Login')}
+        >
+          <Text style={styles.loginButtonText}>{t('welcome.landing.login_button')}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.registerButton} onPress={onRegister}>
-          <Text style={styles.registerButtonText}>Daftar</Text>
+        <TouchableOpacity 
+          style={styles.registerButton} 
+          onPress={() => onRegister('Register')}
+        >
+          <Text style={styles.registerButtonText}>{t('welcome.landing.register_button')}</Text>
         </TouchableOpacity>
       </View>
     </View>

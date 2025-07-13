@@ -37,26 +37,24 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // Handle 401 Unauthorized
-    if (error.response?.result === 401 && !originalRequest._retry) {
+    if ((error.response?.status === 401 || error.response?.data?.result === 401) && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // Refresh token logic bisa ditambahkan di sini
-        const refreshToken = await AsyncStorage.getItem('refresh_token');
-        // Implementasi refresh token
-        
-        return axiosInstance(originalRequest);
+        const token = await AsyncStorage.getItem('auth_token');
+        if (token) {
+          originalRequest.headers['Authorization'] = `Bearer ${token}`;
+          return axiosInstance(originalRequest);
+        }
       } catch (refreshError) {
-        // Handle refresh token error
-        await AsyncStorage.multiRemove(['auth_token', 'refresh_token']);
-        // Redirect ke login
-        return Promise.reject(refreshError);
+        console.error('Error refreshing token:', refreshError);
+        await AsyncStorage.multiRemove(['auth_token', 'refresh_token', 'user']);
       }
     }
 
     // Handle error lainnya
     return Promise.reject({
       message: error.response?.data?.message || 'Terjadi kesalahan',
-      status: error.response?.result,
+      status: error.response?.status || error.response?.data?.result,
       data: error.response?.data,
     });
   }

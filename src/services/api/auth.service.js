@@ -13,14 +13,65 @@ class AuthService {
         email,
         password,
       });
+      console.log(response.data);
 
-      if (response.token) {
-        await AsyncStorage.setItem('auth_token', response.token);
-        if (response.refresh_token) {
-          await AsyncStorage.setItem('refresh_token', response.refresh_token);
-        }
+      // Ambil token dan user dari response.data
+      const token = response.data?.token;
+      const user = response.data?.user;
+
+      if (token) {
+        await AsyncStorage.setItem('auth_token', token);
+      } else {
+        throw new Error('Token tidak ditemukan di response API');
       }
 
+      if (user) {
+        await AsyncStorage.setItem('user', JSON.stringify(user));
+      }
+
+      return { token, user };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Validasi token yang tersimpan
+  async validateToken(token) {
+    try {
+      if (IS_DEVELOPMENT && token === this.DEV_TOKEN) {
+        return true;
+      }
+
+      // Set token ke header untuk validasi
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      // Ambil user dari storage untuk dapat idUser
+      const userData = await AsyncStorage.getItem('user');
+      if (!userData) {
+        throw new Error('User data tidak ditemukan');
+      }
+      
+      const user = JSON.parse(userData);
+      const idUser = user.idUser;
+      
+      // Validasi token dengan endpoint notifikasi (lebih ringan)
+      await axiosInstance.get(ENDPOINTS.NOTIFICATION_GET_BY_USER(idUser));
+      
+      return true;
+    } catch (error) {
+      console.error('Error validating token:', error);
+      if (error.status === 401 || error.response?.status === 401 || error.response?.data?.result === 401) {
+        await AsyncStorage.multiRemove(['auth_token', 'refresh_token', 'user']);
+      }
+      return false;
+    }
+  }
+
+  async refreshToken(refreshToken) {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.REFRESH_TOKEN, {
+        refresh_token: refreshToken
+      });
       return response;
     } catch (error) {
       throw error;
@@ -51,10 +102,12 @@ class AuthService {
 
   async getCurrentUser() {
     try {
-      const response = await axiosInstance.get(ENDPOINTS.USER_PROFILE);
-      return response;
+      // Ambil user dari AsyncStorage sebagai fallback
+      const userData = await AsyncStorage.getItem('user');
+      return userData ? JSON.parse(userData) : null;
     } catch (error) {
-      throw error;
+      console.error('Error getting current user:', error);
+      return null;
     }
   }
 
